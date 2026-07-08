@@ -1,5 +1,7 @@
 .venv
 
+generations
+
 .DS_Store
 
 build/

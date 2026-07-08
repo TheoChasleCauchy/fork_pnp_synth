@@ -6,7 +6,11 @@ import torch
 from pnp_synth.physical import ftm
 import soundfile as sf
 
-range
+range_omega = []
+range_tau = []
+range_logp = []
+range_logD = []
+range_alpha = []
 
 
 def _load_audio(audio_path):
@@ -14,11 +18,11 @@ def _load_audio(audio_path):
     return librosa.load(audio_path, mono=True)[0]
 
 # Create directory for audio files.
-audio_dir = "generations/audios" # os.path.join(save_dir, "x")
+audio_dir = "generations/range_logp/audios" # os.path.join(save_dir, "x")
 os.makedirs(audio_dir, exist_ok=True)
 logscale = True #the csv files are storing logscaled parameters
 
-theta_rows = [[3.102961, 0.2, i, -2.723314, 0.500034] for i in np.linspace(-1.1, 0.5, num=10)]
+theta_rows = [[np.mean(range_omega), np.mean(range_tau), i, np.mean(range_logD), np.mean(range_alpha)] for i in range_logp]
 
 for i, row in enumerate(theta_rows):
     # Physical audio synthesis (g). theta -> x
@@ -35,11 +39,11 @@ model = CLAPLaionModel(type="audio")
 model.load_model()
 
 for i, row in enumerate(theta_rows):
-    audio = _load_audio(os.path.join("generations/audios", f"audio_{i}_value_{row[2]:.2f}.wav"))
+    audio = _load_audio(os.path.join("generations/range_logp/audios", f"audio_{i}_value_logp_{row[2]:.2f}.wav"))
     embedding = model._get_embedding(audio)
     audio_embedding = torch.mean(embedding, dim=0)
     audios_embeddings_np = np.array(audio_embedding.cpu().numpy())
     np.save(
-        os.path.join("generations/embeddings", f"embedding_audio_{i}_value_{row[2]:.2f}"),
+        os.path.join("generations/range_logp/embeddings", f"embedding_audio_{i}_value_logp_{row[2]:.2f}"),
         audios_embeddings_np
     )
