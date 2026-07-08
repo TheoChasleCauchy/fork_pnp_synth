@@ -1,3 +1,5 @@
+.venv
+
 .DS_Store
 
 build/
@@ -9,3 +11,6 @@ icassp23/sbatch/02_compute_pnp_jacobian/
 
 *.egg-info
 *.pyc
+
+uv.lock
+.vscode/
