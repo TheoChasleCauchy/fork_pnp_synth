@@ -1,1 +1,0 @@
-theta_rows = [[3.102961, 0.2, i, -2.723314, 0.500034] for i in np.linspace(-1.1, 0.5, num=10)]

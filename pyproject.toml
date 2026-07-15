@@ -4,6 +4,7 @@ version = "0.1.0.dev0"
 description = "Perceptual-Neural-Physical (PNP) modeling of musical timbre"
 requires-python=">=3.10, <=3.11"
 dependencies = [
+    "fork-fadtk @ https://github.com/TheoChasleCauchy/fork-fadtk.git",
     "librosa",
     "pandas",
     "sklearn",
@@ -12,8 +13,10 @@ dependencies = [
     "joblib",
     "numpy<2",
     "scipy>=1.11.0",
-    "fadtk",
-    "matplotlib"
+    "matplotlib",
+    "fork-cdpam @ https://github.com/TheoChasleCauchy/fork-cdpam.git",
+    "descript-audio-codec",
+    "descript-audiotools"
 ]
 
 [project.urls]

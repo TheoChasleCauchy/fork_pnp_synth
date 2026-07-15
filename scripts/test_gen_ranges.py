@@ -6,44 +6,93 @@ import torch
 from pnp_synth.physical import ftm
 import soundfile as sf
 
-range_omega = []
-range_tau = []
-range_logp = []
-range_logD = []
-range_alpha = []
+from fadtk import CLAPLaionModel
+# Initialize the CLAP model
+model = CLAPLaionModel(type="audio")
+model.load_model()
+
+nb_samples = 19
+
+range_omega = np.linspace(np.log10(40), np.log10(1000), num=nb_samples)
+# range_omega = np.log10(range_omega)
+range_tau = np.linspace(0.4, 3, num=nb_samples)
+range_logp = np.linspace(np.log10(10**-5), np.log10(0.2), num=nb_samples)
+# range_logp = np.log10(range_p)
+range_logD = np.linspace(np.log10(10**-5), np.log10(0.3), num=nb_samples)
+# range_logD = np.log10(range_D)
+range_alpha = np.linspace(10**-5, 1, num=nb_samples)
+
+average_omega = np.mean(range_omega)
+average_tau = np.mean(range_tau)
+average_logp = np.mean(range_logp)
+average_logD = np.mean(range_logD)
+average_alpha = np.mean(range_alpha)
+
+parameters = {
+    "omega": {
+        "range": range_omega,
+        "average": average_omega
+    },
+    "tau": {
+        "range": range_tau,
+        "average": average_tau
+    },
+    "logp": {
+        "range": range_logp,
+        "average": average_logp
+    },
+    "logD": {
+        "range": range_logD,
+        "average": average_logD
+    },
+    "alpha": {
+        "range": range_alpha,
+        "average": average_alpha
+    }
+}
 
 
 def _load_audio(audio_path):
     """Helper to load audio file using librosa."""
     return librosa.load(audio_path, mono=True)[0]
 
-# Create directory for audio files.
-audio_dir = "generations/range_logp/audios" # os.path.join(save_dir, "x")
-os.makedirs(audio_dir, exist_ok=True)
-logscale = True #the csv files are storing logscaled parameters
 
-theta_rows = [[np.mean(range_omega), np.mean(range_tau), i, np.mean(range_logD), np.mean(range_alpha)] for i in range_logp]
+for i_parameter, parameter in enumerate(parameters.keys()):
 
-for i, row in enumerate(theta_rows):
-    # Physical audio synthesis (g). theta -> x
-    theta = np.array(row) # icassp23.THETA_COLUMNS
-    x = ftm.rectangular_drum(theta, logscale, **ftm.constants).cpu()
-    x = x / max(x)
+    # Create directory for audio files.
+    audio_dir = f"generations/range_{parameter}/audios"
+    os.makedirs(audio_dir, exist_ok=True)
+    logscale = True # logscaled parameters
 
-    sf.write(os.path.join(audio_dir, f"audio_{i}_value_{row[2]:.2f}.wav"), x, ftm.constants["sr"])
+    theta_rows = []
+    # [i, a, a ,a ,a], [a, i, a ,a ,a], ...
+    for i in range(nb_samples):
+        row = []
+        for param in parameters.keys():
+            if param == parameter:
+                element = parameters[param]["range"][i]
+            else:
+                element = parameters[param]["average"]
+            row.append(element)
+        theta_rows.append(row)
 
+    for i, row in enumerate(theta_rows):
+        # Physical audio synthesis (g). theta -> x
+        theta = np.array(row) # icassp23.THETA_COLUMNS
+        x = ftm.rectangular_drum(theta, logscale, **ftm.constants).cpu()
+        x = x / max(x)
 
-from fadtk import CLAPLaionModel
-# Initialize the CLAP model
-model = CLAPLaionModel(type="audio")
-model.load_model()
+        sf.write(os.path.join(audio_dir, f"audio_{i}_param_{parameter}_value_{row[i_parameter]:.2f}.wav"), x, ftm.constants["sr"])
 
-for i, row in enumerate(theta_rows):
-    audio = _load_audio(os.path.join("generations/range_logp/audios", f"audio_{i}_value_logp_{row[2]:.2f}.wav"))
-    embedding = model._get_embedding(audio)
-    audio_embedding = torch.mean(embedding, dim=0)
-    audios_embeddings_np = np.array(audio_embedding.cpu().numpy())
-    np.save(
-        os.path.join("generations/range_logp/embeddings", f"embedding_audio_{i}_value_logp_{row[2]:.2f}"),
-        audios_embeddings_np
-    )
+    embeddings_dir = f"generations/range_{parameter}/embeddings"
+    os.makedirs(embeddings_dir, exist_ok=True)
+
+    for i, row in enumerate(theta_rows):
+        audio = _load_audio(os.path.join(audio_dir, f"audio_{i}_param_{parameter}_value_{row[i_parameter]:.2f}.wav"))
+        embedding = model._get_embedding(audio)
+        audio_embedding = torch.mean(embedding, dim=0)
+        audios_embeddings_np = np.array(audio_embedding.cpu().numpy())
+        np.save(
+            os.path.join(embeddings_dir, f"embedding_audio_{i}_param_{parameter}_value_{row[i_parameter]:.2f}"),
+            audios_embeddings_np
+        )
