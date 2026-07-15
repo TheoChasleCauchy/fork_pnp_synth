@@ -16,3 +16,5 @@ icassp23/sbatch/02_compute_pnp_jacobian/
 
 uv.lock
 .vscode/
+
+exp_embeddings_linearity/generated

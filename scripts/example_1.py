@@ -28,14 +28,11 @@ center_alpha = (max_alpha + min_alpha) / 2
 Theta_A = [center_omega, center_tau, min_logp, center_logD, center_alpha]
 Theta_B = [center_omega, center_tau, max_logp, center_logD, center_alpha]
 Theta_C = [max_omega, max_tau, center_logp, max_logD, max_alpha]
-print(Theta_C)
-assert 1==2
 
 Theta_AC = [np.linspace(Theta_A, Theta_C, num=10)]
 Theta_CB = [np.linspace(Theta_C, Theta_B, num=10)[1:]]
 
 Theta_ACB = np.concatenate([Theta_AC, Theta_CB], axis=1)[0]
-print(Theta_ACB)
 
 def _load_audio(audio_path):
     """Helper to load audio file using librosa."""
