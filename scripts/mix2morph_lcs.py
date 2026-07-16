@@ -49,6 +49,7 @@ def compute_lcs(morphed_audios):
             # Step 1: Extract latent features using DAC
             latents = extract_dac_latents(audio).cpu()
             latents = latents[0,:,:]
+            print(latents.shape)
 
             # Step 2: Apply PCA to the latent features
             pca = PCA(n_components=2)
@@ -68,21 +69,22 @@ def compute_lcs(morphed_audios):
     # Return [mean_LCS, LCS1, LCS2, ...]
     return [mean_lcs] + lcs_values
 
-def get_morphing_audios(audios_folder):
+def get_middle_morphing_audio(audios_folder):
     audios = [os.path.join(audios_folder, f) for f in os.listdir(audios_folder) if f.endswith(".wav")]
-    return sorted(audios, key=lambda x: int(re.search(r'audio_(\d+)', os.path.basename(x)).group(1)))
+    audios = sorted(audios, key=lambda x: int(re.search(r'audio_(\d+)', os.path.basename(x)).group(1)))
+    return audios[len(audios) // 2]
 
 def main(morphing_name):
     audios_folder = f"generations/{morphing_name}/audios"
 
-    morphing_audios = get_morphing_audios(audios_folder)
-    lcs_values = compute_lcs(morphing_audios)
+    morphing_audio = get_middle_morphing_audio(audios_folder)
+    lcs_value = compute_lcs([morphing_audio])
     
     # Write lcs values in a csv file
-    with open(f"generations/{morphing_name}/{morphing_name}_lcs_values.csv", "w", newline="") as csvfile:
+    with open(f"generations/{morphing_name}/{morphing_name}_lcs_value.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["Mean LCS"] + [f"LCS_{i}" for i in range(1, len(lcs_values))])
-        writer.writerow(lcs_values)
+        writer.writerow(["Middle Morphing Audio LCS"])
+        writer.writerow([lcs_value])
 
 if __name__ == "__main__":
     # Set up argument parser

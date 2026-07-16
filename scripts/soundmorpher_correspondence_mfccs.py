@@ -17,9 +17,9 @@ def correspondence_mfccs(source_audio_name: str, morphed_audios_name: str, targe
     Returns:
         metric (float): The computed metric value.
     """
-    source_audio = librosa.load(source_audio_name)[0]#[:130560] ######################TO REMOVE ONCE THE AUDIO SIZES ARE EQUAL
-    morphed_audio = librosa.load(morphed_audios_name)[0]#[:130560] ######################TO REMOVE ONCE THE AUDIO SIZES ARE EQUAL
-    target_audio = librosa.load(target_audio_name)[0]#[:130560] ######################TO REMOVE ONCE THE AUDIO SIZES ARE EQUAL
+    source_audio = librosa.load(source_audio_name)[0]
+    morphed_audio = librosa.load(morphed_audios_name)[0]
+    target_audio = librosa.load(target_audio_name)[0]
 
     # Step 1: Compute MFCCs for each tensor
     mfcc_source = librosa.feature.mfcc(y=source_audio)
@@ -49,22 +49,19 @@ def correspondence_mfccs(source_audio_name: str, morphed_audios_name: str, targe
 
     return coeff
 
-def get_morphing_audios(audios_folder):
+def get_sources_and_middle_morphing_audio(audios_folder):
     audios = [os.path.join(audios_folder, f) for f in os.listdir(audios_folder) if f.endswith(".wav")]
-    return sorted(audios, key=lambda x: int(re.search(r'audio_(\d+)', os.path.basename(x)).group(1)))
+    audios = sorted(audios, key=lambda x: int(re.search(r'audio_(\d+)', os.path.basename(x)).group(1)))
+    return audios[0], audios[len(audios) // 2], audios[-1]
 
 def main(morphing_name):
     audios_folder = f"generations/{morphing_name}/audios"
 
-    morphing_audios = get_morphing_audios(audios_folder)
-    # Take only the first audio, the last audio and the middle one
-    if len(morphing_audios) >= 3:
-        morphing_audios = [morphing_audios[0], morphing_audios[len(morphing_audios)//2], morphing_audios[-1]]
-
-    correspondence_value = correspondence_mfccs(morphing_audios[0], morphing_audios[1], morphing_audios[2])
+    source_audio, middle_morphing_audio, target_audio = get_sources_and_middle_morphing_audio(audios_folder)
+    correspondence_value = correspondence_mfccs(source_audio, middle_morphing_audio, target_audio)
     
-    # Write correspondence values in a csv file
-    with open(f"generations/{morphing_name}/{morphing_name}_correspondence_mfccs.csv", "w", newline="") as csvfile:
+    # Write lcs values in a csv file
+    with open(f"generations/{morphing_name}/{morphing_name}_correspondence_mfccs_value.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Correspondence MFCCs"])
         writer.writerow([correspondence_value])

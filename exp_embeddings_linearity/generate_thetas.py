@@ -18,18 +18,12 @@ def generate_and_save_couples(seed, number_of_couples, filename="exp_embeddings_
 
     for _ in range(number_of_couples):
         # Sample A (logp = min_logp)
-        omega_A = random.uniform(min_omega, max_omega)
-        tau_A = random.uniform(min_tau, max_tau)
-        logD_A = random.uniform(min_logD, max_logD)
-        alpha_A = random.uniform(min_alpha, max_alpha)
-        A = (omega_A, tau_A, min_logp, logD_A, alpha_A)
-
-        # Sample B (logp = max_logp)
-        omega_B = random.uniform(min_omega, max_omega)
-        tau_B = random.uniform(min_tau, max_tau)
-        logD_B = random.uniform(min_logD, max_logD)
-        alpha_B = random.uniform(min_alpha, max_alpha)
-        B = (omega_B, tau_B, max_logp, logD_B, alpha_B)
+        omega = random.uniform(min_omega, max_omega)
+        tau = random.uniform(min_tau, max_tau)
+        logD = random.uniform(min_logD, max_logD)
+        alpha = random.uniform(min_alpha, max_alpha)
+        A = (omega, tau, min_logp, logD, alpha)
+        B = (omega, tau, max_logp, logD, alpha)
 
         # Flatten A and B into a single row
         row = (*A, *B)

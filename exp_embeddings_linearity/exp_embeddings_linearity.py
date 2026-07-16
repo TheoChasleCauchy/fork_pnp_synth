@@ -86,3 +86,5 @@ for model_name in models:
             embedding = model._get_embedding(audio)
             audio_embedding = torch.mean(embedding, dim=0).cpu().detach().numpy()
             np.save(os.path.join(embeddings_dir, f"embedding_{model_name}_row_{i}_AB_I{alpha}.npy"), audio_embedding)
+
+# 5. Compute metrics
