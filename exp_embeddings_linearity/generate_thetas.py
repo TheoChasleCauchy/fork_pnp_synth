@@ -2,6 +2,7 @@ import os
 import random
 import csv
 import numpy as np
+from pyparsing import alphas
 
 min_omega, max_omega = np.log10(40), np.log10(1000)
 min_tau, max_tau = 0.4, 3
@@ -38,5 +39,16 @@ def generate_and_save_couples(seed, number_of_couples, filename="exp_embeddings_
         ]
         writer.writerow(header)
         writer.writerows(couples)
+
+    return filename
+
+def save_logp_values(num_intermediate_samples, filename="exp_embeddings_linearity/generated/logp_values.csv"):
+    logp_values = np.linspace(min_logp, max_logp, num=num_intermediate_samples, endpoint=False)
+    logp_values = list(logp_values) + [max_logp]
+
+    # Save csv file:
+    with open(filename, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(logp_values)
 
     return filename

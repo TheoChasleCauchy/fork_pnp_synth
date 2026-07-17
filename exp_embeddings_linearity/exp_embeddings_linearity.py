@@ -7,7 +7,8 @@ from tqdm import tqdm
 from pnp_synth.physical import ftm
 
 from load_models_and_audios import _load_audio, _load_model
-from generate_thetas import generate_and_save_couples
+from generate_thetas import generate_and_save_couples, save_logp_values
+from sobolev_distance import compute_sobolev_distances, make_table
 
 seed = 42
 
@@ -32,59 +33,73 @@ os.makedirs(audio_dir, exist_ok=True)
 
 num_intermediate_samples = 11
 
-for i, couple in enumerate(tqdm(thetas_couples, desc="Processing couples", total=len(thetas_couples))):
+logp_values_filename = save_logp_values(num_intermediate_samples)
+logp_values = []
+with open(logp_values_filename, 'r') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        logp_values = [float(x) for x in row]
 
-    # Synthesize sources
-    Theta_A, Theta_B = couple
+# for i, couple in enumerate(tqdm(thetas_couples, desc="Processing couples", total=len(thetas_couples))):
 
-    # Physical audio synthesis (g). theta -> x
-    x = ftm.rectangular_drum(Theta_A, True, **ftm.constants).cpu()
-    x = x / max(x)
+#     # Synthesize sources
+#     Theta_A, Theta_B = couple
 
-    sf.write(os.path.join(audio_dir, f"audio_row_{i}_A.wav"), x, ftm.constants["sr"])
+#     # Physical audio synthesis (g). theta -> x
+#     x = ftm.rectangular_drum(Theta_A, True, **ftm.constants).cpu()
+#     x = x / max(x)
 
-    # Physical audio synthesis (g). theta -> x
-    x = ftm.rectangular_drum(Theta_B, True, **ftm.constants).cpu()
-    x = x / max(x)
+#     sf.write(os.path.join(audio_dir, f"audio_row_{i}_A.wav"), x, ftm.constants["sr"])
 
-    sf.write(os.path.join(audio_dir, f"audio_row_{i}_B.wav"), x, ftm.constants["sr"])
+#     # Physical audio synthesis (g). theta -> x
+#     x = ftm.rectangular_drum(Theta_B, True, **ftm.constants).cpu()
+#     x = x / max(x)
 
-    # Synthesize intermediate samples
-    range_AB = np.linspace(Theta_A, Theta_B, num=num_intermediate_samples, endpoint=False)[1:] # Do not resynthesize A
+#     sf.write(os.path.join(audio_dir, f"audio_row_{i}_B.wav"), x, ftm.constants["sr"])
 
-    for alpha, theta in enumerate(range_AB):
-        x = ftm.rectangular_drum(theta, True, **ftm.constants).cpu()
-        x = x / max(x)
-        sf.write(os.path.join(audio_dir, f"audio_row_{i}_AB_I{alpha}.wav"), x, ftm.constants["sr"])
+#     # Synthesize intermediate samples
+#     range_AB = np.linspace(Theta_A, Theta_B, num=num_intermediate_samples, endpoint=False)[1:] # Do not resynthesize A
+
+#     for alpha, theta in enumerate(range_AB):
+#         x = ftm.rectangular_drum(theta, True, **ftm.constants).cpu()
+#         x = x / max(x)
+#         sf.write(os.path.join(audio_dir, f"audio_row_{i}_AB_I{alpha}.wav"), x, ftm.constants["sr"])
 
 
 # 4. Compute embeddings
 models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
 
-for model_name in models:
-    model = _load_model(model_name)
-    embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
-    os.makedirs(embeddings_dir, exist_ok=True)
-    for i, couple in tqdm(enumerate(thetas_couples), desc=f"Processing {model_name}", total=len(thetas_couples)):
-        audios = []
-        audio = _load_audio(model, os.path.join(audio_dir, f"audio_row_{i}_A.wav"))
-        embedding = model._get_embedding(audio)
-        audio_embedding = torch.mean(embedding, dim=0).cpu().detach().numpy()
-        np.save(os.path.join(embeddings_dir, f"embedding_{model_name}_row_{i}_A.npy"), audio_embedding)
+# for model_name in models:
+#     model = _load_model(model_name)
+#     embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
+#     os.makedirs(embeddings_dir, exist_ok=True)
+#     for i, couple in tqdm(enumerate(thetas_couples), desc=f"Processing {model_name}", total=len(thetas_couples)):
+#         Theta_A, Theta_B = couple
 
-        audio = _load_audio(model, os.path.join(audio_dir, f"audio_row_{i}_B.wav"))
-        embedding = model._get_embedding(audio)
-        audio_embedding = torch.mean(embedding, dim=0).cpu().detach().numpy()
-        np.save(os.path.join(embeddings_dir, f"embedding_{model_name}_row_{i}_B.npy"), audio_embedding)
+#         audios = []
+#         audio = _load_audio(model, os.path.join(audio_dir, f"audio_row_{i}_A.wav"))
+#         embedding = model._get_embedding(audio)
+#         audio_embedding = torch.mean(embedding, dim=0).cpu().detach().numpy()
+#         np.save(os.path.join(embeddings_dir, f"embedding_{model_name}_row_{i}_A.npy"), audio_embedding)
 
-        range_AB = np.linspace(Theta_A, Theta_B, num=num_intermediate_samples, endpoint=False)[1:] # Do not resynthesize A
-        for alpha, theta in enumerate(range_AB):
-            audio = _load_audio(model, os.path.join(audio_dir, f"audio_row_{i}_AB_I{alpha}.wav"))
-            audios.append(audio)
+#         audio = _load_audio(model, os.path.join(audio_dir, f"audio_row_{i}_B.wav"))
+#         embedding = model._get_embedding(audio)
+#         audio_embedding = torch.mean(embedding, dim=0).cpu().detach().numpy()
+#         np.save(os.path.join(embeddings_dir, f"embedding_{model_name}_row_{i}_B.npy"), audio_embedding)
+
+#         range_AB = np.linspace(Theta_A, Theta_B, num=num_intermediate_samples, endpoint=False)[1:] # Do not resynthesize A
+#         for alpha in range(len(range_AB)):
+#             audio = _load_audio(model, os.path.join(audio_dir, f"audio_row_{i}_AB_I{alpha}.wav"))
+#             embedding = model._get_embedding(audio)
+#             audio_embedding = torch.mean(embedding, dim=0).cpu().detach().numpy()
+#             np.save(os.path.join(embeddings_dir, f"embedding_{model_name}_row_{i}_AB_I{alpha}.npy"), audio_embedding)
         
-        for audio in audios:
-            embedding = model._get_embedding(audio)
-            audio_embedding = torch.mean(embedding, dim=0).cpu().detach().numpy()
-            np.save(os.path.join(embeddings_dir, f"embedding_{model_name}_row_{i}_AB_I{alpha}.npy"), audio_embedding)
 
-# 5. Compute metrics
+# 5. Compute sobolev distance
+results_dir = f"exp_embeddings_linearity/generated/results"
+os.makedirs(results_dir, exist_ok=True)
+for model_name in models:
+    embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
+    compute_sobolev_distances(embeddings_dir, results_dir, model_name, thetas_couples, logp_values, num_intermediate_samples)
+
+make_table(results_dir, models)

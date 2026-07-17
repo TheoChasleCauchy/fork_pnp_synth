@@ -1,4 +1,4 @@
-import argparse
+import librosa
 import torch
 import numpy as np  # Library for numerical operations
 import os  # Library for interacting with the operating system
@@ -7,6 +7,7 @@ from sklearn.decomposition import PCA
 import dac
 from audiotools import AudioSignal
 import csv
+import tqdm
 
 # Download a model
 model_path = dac.utils.download(model_type="44khz")
@@ -62,30 +63,27 @@ def compute_lcs(morphed_audio):
 
     return lcs_value
 
-def get_middle_morphing_audio(audios_folder):
-    audios = [os.path.join(audios_folder, f) for f in os.listdir(audios_folder) if f.endswith(".wav")]
-    audios = sorted(audios, key=lambda x: int(re.search(r'audio_(\d+)', os.path.basename(x)).group(1)))
-    return audios[len(audios) // 2]
+def compute_mix2morph_lcs(thetas_couples, num_intermediate_samples):
+    audios_folder = f"exp_embeddings_linearity/generated/audio"
 
-def main(morphing_name):
-    audios_folder = f"generations/{morphing_name}/audios"
-
-    morphing_audio = get_middle_morphing_audio(audios_folder)
-    lcs_value = compute_lcs([morphing_audio])
+    def _load_audio(audio_path):
+        """Helper to load audio file using librosa."""
+        return librosa.load(audio_path, mono=True)[0]
     
+    lcs_values = []
+    for i in tqdm(thetas_couples, desc=f"Computing LCS on morphs", total=len(thetas_couples)):
+
+        # Synthesize intermediate samples
+        alpha = num_intermediate_samples//2
+
+        audio = _load_audio(os.path.join(audios_folder, f"audio_row_{i}_AB_I{alpha}.wav"))
+
+        lcs_value = compute_lcs([audio])
+        lcs_values.append(lcs_value)
+
     # Write lcs values in a csv file
-    with open(f"generations/{morphing_name}/{morphing_name}_lcs_value.csv", "w", newline="") as csvfile:
+    with open(f"exp_embeddings_linearity/generated/mix2morph_lcs_values.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Middle Morphing Audio LCS"])
-        writer.writerow([lcs_value])
-
-if __name__ == "__main__":
-    # Set up argument parser
-    parser = argparse.ArgumentParser(description="Load the morphing's audios.")
-    parser.add_argument("morphing_name", type=str, help="Name of the morphing")
-
-    # Parse arguments
-    args = parser.parse_args()
-
-    # Call main with the directory argument
-    main(args.morphing_name)
+        for lcs_value in lcs_values:
+            writer.writerow([lcs_value])
