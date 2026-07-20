@@ -4,6 +4,16 @@ import numpy as np  # Library for numerical operations
 import os
 from tqdm import tqdm
 
+embeddings_sizes = {
+    "LaionCLAP_audio": 512,
+    "LaionCLAP_music": 512,
+    "MSCLAP": 1024,
+    "MERT_v1-95M": 768,
+    "MERT_v1-330M": 768,
+    "MERT_v0-public": 768,
+    "VGGish": 128
+}
+
 def sobolev_distance(k: int, p: int, f, g, alpha_values):
     """
     Computes the Sobolev distance between two embeddings.
@@ -51,31 +61,30 @@ def sobolev_distance(k: int, p: int, f, g, alpha_values):
 
     return dist.item()
 
-def compute_sobolev_distances(embeddings_folder, results_dir, model_name, thetas_couples, logp_values, num_intermediate_samples):
+def compute_sobolev_distances(embeddings_folder, results_dir, model_name, trajectories, num_intermediate_samples):
 
     # get alpha values to b between 0 and 1
-    logp_values = torch.tensor(logp_values)
-    logp_values = (logp_values - logp_values.min()) / (logp_values.max() - logp_values.min())
+    p_values = torch.tensor(np.linspace(0, 1, num_intermediate_samples+2))
     
     for k, p in [(1, 2), (0, 2)]:
         sobolev_dists = []
-        for i in tqdm(range(len(thetas_couples)), desc=f"Applying Sobolev ({k},{p}) to {model_name}", total=len(thetas_couples)):
-            
-            morph_embeddings = []
-            
-            embedding_A = torch.tensor(np.load(os.path.join(embeddings_folder, f"embedding_{model_name}_row_{i}_A.npy")))
-            morph_embeddings.append(embedding_A)
-            embedding_B = torch.tensor(np.load(os.path.join(embeddings_folder, f"embedding_{model_name}_row_{i}_B.npy")))
-            morph_embeddings.append(embedding_B)
-    
-            for alpha in range(num_intermediate_samples-1):
-                embedding = torch.tensor(np.load(os.path.join(embeddings_folder, f"embedding_{model_name}_row_{i}_AB_I{alpha}.npy")))
+        for i_traj, trajectory in enumerate(tqdm(trajectories, desc="Processing couples", total=len(trajectories))):
+            for i_theta in range(len(trajectory)):
+                morph_embeddings = []
+                embedding = torch.tensor(np.load(os.path.join(embeddings_folder, f"embedding_{model_name}_row_{i_traj}_AB_I{i_theta}.npy")))
+                
+                # Normalize to 1.0
+                embedding = embedding / torch.norm(embedding)
+
+                # Normalize by embedding size
+                embedding = embedding / embeddings_sizes[model_name]
+
                 morph_embeddings.append(embedding)
 
             # Interpolation between vectors
-            ideal_morphing = [torch.lerp(embedding_A, embedding_B, logp_value) for logp_value in logp_values]
+            ideal_morphing = [torch.lerp(morph_embeddings[0], morph_embeddings[-1], p_value) for p_value in p_values]
 
-            sobolev_value = sobolev_distance(k, p, morph_embeddings, ideal_morphing, alpha_values = logp_values)
+            sobolev_value = sobolev_distance(k, p, morph_embeddings, ideal_morphing, alpha_values = p_values)
             sobolev_dists.append(sobolev_value)
 
         # Write sobolev values in a csv file
@@ -108,11 +117,14 @@ def make_table(results_dir, models):
     with open(output_csv_path, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
 
-        # Write header: models as columns
-        header = ["Sobolev Distance (k, p)"] + models
+        # Write header: models as rows
+        header = ["Model", "Sobolev Distance (0, 2) $\downarrow$", "Sobolev Distance (1, 2) $\downarrow$", "Size"]
         writer.writerow(header)
 
-        # Write rows: (k, p) as rows, mean+-std as values
-        for row_key, model_data in table_data.items():
-            row = [row_key] + [model_data[model] for model in models]
+        # Write rows: models as rows, (k, p) as columns, mean+-std as values
+        for model_name in models:
+            row = [model_name]
+            for k, p in [(0, 2), (1, 2)]:
+                row.append(table_data[f"Sobolev ({k}, {p}) $\downarrow$"][model_name])
+            row.append(embeddings_sizes[model_name])
             writer.writerow(row)
