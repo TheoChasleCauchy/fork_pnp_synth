@@ -1,11 +1,8 @@
-import librosa
+import csv
 import torch
 import numpy as np  # Library for numerical operations
-import os  # Library for interacting with the operating system
-import re
 from sklearn.decomposition import PCA
 import dac
-from audiotools import AudioSignal
 import csv
 import tqdm
 
@@ -15,30 +12,12 @@ model = dac.DAC.load(model_path)
 model.sample_rate = 24000
 model.to('cuda')
 
-def extract_dac_latents(audio):
-    """
-    Extract latent features for an audio clip using the Descript Audio Codec (DAC) model.
-
-    Args:
-        audio: Audio path or signal.
-        sample_rate: Sample rate of the audio (default: 24000, as expected by DAC).
-
-    Returns:
-        Latent features (numpy array).
-    """
-    signal = AudioSignal(audio, sample_rate=model.sample_rate)
-    signal.to(model.device)
-    x = model.preprocess(signal.audio_data, model.sample_rate)
-    _, _, latents, _, _ = model.encode(x)
-
-    return latents
-
-def compute_lcs(morphed_audio):
+def compute_lcs(points_coordinates):
     """
     Compute the Latent Component Score (LCS) for a list of morphed audio clips.
 
     Args:
-        morphed_audio: Audio signal (1D numpy array).
+        points_coordinates: List of coordinate points.
 
     Returns:
         LCS value.
@@ -46,9 +25,7 @@ def compute_lcs(morphed_audio):
 
     with torch.no_grad():
         # Step 1: Extract latent features using DAC
-        latents = extract_dac_latents(morphed_audio).cpu()
-        latents = latents[0,:,:]
-        print(latents.shape)
+        latents = points_coordinates
 
         # Step 2: Apply PCA to the latent features
         pca = PCA(n_components=2)
@@ -63,27 +40,30 @@ def compute_lcs(morphed_audio):
 
     return lcs_value
 
-def compute_mix2morph_lcs(thetas_couples, num_intermediate_samples):
-    audios_folder = f"exp_embeddings_linearity/generated/audio"
+def compute_mix2morph_lcs():
+    points_csv = f"exp_invalidate_metrics_example_1/generated/generated_intermediate_points.csv"
+    
+    trajectories = []
+    with open(points_csv, 'r') as f:
+        reader = csv.reader(f)
+        next(reader)  # Skip the header row
 
-    def _load_audio(audio_path):
-        """Helper to load audio file using librosa."""
-        return librosa.load(audio_path, mono=True)[0]
+        for row in reader:
+            trajectories.append(row)
     
     lcs_values = []
-    for i in tqdm(thetas_couples, desc=f"Computing LCS on morphs", total=len(thetas_couples)):
+    for trajectory in tqdm(trajectories, desc=f"Computing LCS on morphs", total=len(trajectories)):
+        # Stack the tuples in the list
+        trajectory = np.array(trajectory)
 
-        # Synthesize intermediate samples
-        alpha = num_intermediate_samples//2
-
-        audio = _load_audio(os.path.join(audios_folder, f"audio_row_{i}_AB_I{alpha}.wav"))
-
-        lcs_value = compute_lcs([audio])
+        lcs_value = compute_lcs(trajectory)
         lcs_values.append(lcs_value)
 
     # Write lcs values in a csv file
-    with open(f"exp_embeddings_linearity/generated/mix2morph_lcs_values.csv", "w", newline="") as csvfile:
+    with open(f"exp_invalidate_metrics_example_1/generated/mix2morph_lcs_values.csv", "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["Middle Morphing Audio LCS"])
-        for lcs_value in lcs_values:
-            writer.writerow([lcs_value])
+        writer.writerow(["Row", "Middle Morphing Audio LCS"])
+        for i, lcs_value in enumerate(lcs_values):
+            writer.writerow([i, lcs_value])
+        writer.writerow(["Mean LCS", f"{np.mean(lcs_values)} +- {np.std(lcs_values)}"])
+        

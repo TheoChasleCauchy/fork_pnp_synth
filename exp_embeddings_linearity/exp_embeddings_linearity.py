@@ -69,5 +69,6 @@ for model_name in models:
     embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
 
-# models = ["VGGish", "MSCLAP", "MERT_v0-public", "MERT_v1-95M", "MERT_v1-330M", "LaionCLAP_audio", "LaionCLAP_music"]
-# make_table(results_dir, models)
+models = ["VGGish", "MSCLAP", "MERT_v0-public", "MERT_v1-95M", "MERT_v1-330M", "LaionCLAP_audio", "LaionCLAP_music"]
+results_dir = f"exp_embeddings_linearity/generated/results/"
+make_table(results_dir, models)

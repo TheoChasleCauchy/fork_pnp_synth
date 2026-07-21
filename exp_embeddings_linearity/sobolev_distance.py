@@ -104,13 +104,27 @@ def make_table(results_dir, models):
         table_data[row_key] = {}
 
         for model_name in models:
-            csv_path = os.path.join(results_dir, model_name, f"{model_name}_sobolev_dists_{k}_{p}.csv")
+            # Get metric value of random baseline
+            random_csv_path = os.path.join(results_dir, "random", f"random_sobolev_dists_{k}_{p}.csv")
+            if os.path.exists(random_csv_path):
+                with open(random_csv_path, "r") as csvfile:
+                    reader = csv.reader(csvfile)
+                    rows = list(reader)
+                    # Extract the last row, which contains the mean and std
+                    random_mean_std_str = rows[-1][1]
+            else:
+                raise FileNotFoundError(f"File not found: {random_csv_path}")
+
+            # Get metric value
+            csv_path = os.path.join(results_dir, "embeddings", model_name, f"{model_name}_sobolev_dists_{k}_{p}.csv")
             with open(csv_path, "r") as csvfile:
                 reader = csv.reader(csvfile)
                 rows = list(reader)
                 # Extract the last row, which contains the mean and std
                 mean_std_str = rows[-1][1]
                 table_data[row_key][model_name] = mean_std_str
+            
+            table_data[row_key][model_name] /= random_mean_std_str
 
     # Write the table to a CSV file
     output_csv_path = os.path.join(results_dir, "sobolev_distances_table.csv")
