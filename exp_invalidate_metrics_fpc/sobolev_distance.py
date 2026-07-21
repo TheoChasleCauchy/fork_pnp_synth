@@ -1,7 +1,7 @@
 import csv
+import re
 import torch  # PyTorch for tensor operations
 import numpy as np  # Library for numerical operations
-import os
 from tqdm import tqdm
 
 def sobolev_distance(k: int, p: int, f, g, alpha_values):
@@ -51,31 +51,36 @@ def sobolev_distance(k: int, p: int, f, g, alpha_values):
 
     return dist.item()
 
-def compute_sobolev_distances(results_dir, model_name, trajectories):
+def compute_sobolev_distances(points_csv: str, metrics_folder: str):
 
-    points_csv = f"exp_invalidate_metrics_example_1/generated/generated_intermediate_points.csv"
-    
     trajectories = []
     with open(points_csv, 'r') as f:
         reader = csv.reader(f)
         next(reader)  # Skip the header row
 
         for row in reader:
-            trajectories.append(row)
+            # Convert each value to float and group into tuples of 5 parameters
+            points = [
+                list(map(float, row[i:i+2]))
+                for i in range(0, len(row), 2)
+            ]
+            trajectories.append(points)
     
     for k, p in [(1, 2), (0, 2)]:
         sobolev_dists = []
-        for trajectory in tqdm(trajectories, desc=f"Computing LCS on morphs", total=len(trajectories)):
-            alpha_values = np.linspace(0, 1, len(trajectory))
+        for trajectory in tqdm(trajectories, desc=f"Computing Sobolev distance ({k}, {p}) on morphs", total=len(trajectories)):
+            trajectory_tensor = [torch.tensor(point) for point in trajectory]
+
+            alpha_values = torch.from_numpy(np.linspace(0, 1, len(trajectory_tensor)))
 
             # Interpolation between vectors
-            ideal_morphing = [torch.lerp(trajectory[0], trajectory[-1], alpha_value) for alpha_value in alpha_values]
+            ideal_morphing = [torch.lerp(trajectory_tensor[0], trajectory_tensor[-1], alpha_value) for alpha_value in alpha_values]
 
-            sobolev_value = sobolev_distance(k, p, trajectory, ideal_morphing, alpha_values = torch.tensor(alpha_values))
+            sobolev_value = sobolev_distance(k, p, trajectory_tensor, ideal_morphing, alpha_values = alpha_values)
             sobolev_dists.append(sobolev_value)
 
         # Write sobolev values in a csv file
-        with open(f"{results_dir}/{model_name}/{model_name}_sobolev_dists_{k}_{p}.csv", "w", newline="") as csvfile:
+        with open(f"{metrics_folder}/sobolev_dists_{k}_{p}.csv", "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["Row", "Sobolev Distance"])
             for i, value in enumerate(sobolev_dists):

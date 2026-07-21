@@ -69,15 +69,15 @@ def compute_sobolev_distances(embeddings_folder, results_dir, model_name, trajec
     for k, p in [(1, 2), (0, 2)]:
         sobolev_dists = []
         for i_traj, trajectory in enumerate(tqdm(trajectories, desc="Processing couples", total=len(trajectories))):
+            morph_embeddings = []
             for i_theta in range(len(trajectory)):
-                morph_embeddings = []
                 embedding = torch.tensor(np.load(os.path.join(embeddings_folder, f"embedding_{model_name}_row_{i_traj}_AB_I{i_theta}.npy")))
                 
-                # Normalize to 1.0
-                embedding = embedding / torch.norm(embedding)
+                # # Normalize to 1.0
+                # embedding = embedding / torch.norm(embedding)
 
-                # Normalize by embedding size
-                embedding = embedding / embeddings_sizes[model_name]
+                # # Normalize by embedding size
+                # embedding = embedding / embeddings_sizes[model_name]
 
                 morph_embeddings.append(embedding)
 
@@ -88,7 +88,9 @@ def compute_sobolev_distances(embeddings_folder, results_dir, model_name, trajec
             sobolev_dists.append(sobolev_value)
 
         # Write sobolev values in a csv file
-        with open(f"{results_dir}/{model_name}/{model_name}_sobolev_dists_{k}_{p}.csv", "w", newline="") as csvfile:
+        results_path = os.path.join(results_dir, model_name)
+        os.makedirs(results_path, exist_ok=True)
+        with open(f"{results_path}/{model_name}_sobolev_dists_{k}_{p}.csv", "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["Row", "Sobolev Distance"])
             for i, value in enumerate(sobolev_dists):

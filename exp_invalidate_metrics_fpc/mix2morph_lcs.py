@@ -1,10 +1,11 @@
 import csv
+import pandas as pd
 import torch
 import numpy as np  # Library for numerical operations
 from sklearn.decomposition import PCA
 import dac
 import csv
-import tqdm
+from tqdm import tqdm
 
 # Download a model
 model_path = dac.utils.download(model_type="44khz")
@@ -40,8 +41,7 @@ def compute_lcs(points_coordinates):
 
     return lcs_value
 
-def compute_mix2morph_lcs():
-    points_csv = f"exp_invalidate_metrics_example_1/generated/generated_intermediate_points.csv"
+def compute_mix2morph_lcs(points_csv: str, metric_csv: str):
     
     trajectories = []
     with open(points_csv, 'r') as f:
@@ -49,7 +49,12 @@ def compute_mix2morph_lcs():
         next(reader)  # Skip the header row
 
         for row in reader:
-            trajectories.append(row)
+            # Convert each value to float and group into tuples of 5 parameters
+            points = [
+                list(map(float, row[i:i+2]))
+                for i in range(0, len(row), 2)
+            ]
+            trajectories.append(points)
     
     lcs_values = []
     for trajectory in tqdm(trajectories, desc=f"Computing LCS on morphs", total=len(trajectories)):
@@ -60,7 +65,7 @@ def compute_mix2morph_lcs():
         lcs_values.append(lcs_value)
 
     # Write lcs values in a csv file
-    with open(f"exp_invalidate_metrics_example_1/generated/mix2morph_lcs_values.csv", "w", newline="") as csvfile:
+    with open(metric_csv, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Row", "Middle Morphing Audio LCS"])
         for i, lcs_value in enumerate(lcs_values):

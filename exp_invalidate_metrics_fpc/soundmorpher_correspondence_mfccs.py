@@ -1,11 +1,7 @@
-import argparse
 import csv
 import re
-from dac import model
 import numpy as np  # Library for numerical operations
-import os  # Library for interacting with the operating system
-import librosa
-import tqdm
+from tqdm import tqdm
 
 def correspondence_mfccs(mfcc_source_point: tuple[float], mfcc_morphed_point: tuple[float], mfcc_target_point: tuple[float]):
     """
@@ -22,8 +18,8 @@ def correspondence_mfccs(mfcc_source_point: tuple[float], mfcc_morphed_point: tu
     # Step 2: Compute the coefficients for each tensor
 
     # Compute L2 norms
-    norm_i_0 = np.linalg.norm(mfcc_morphed_point - mfcc_source_point)
-    norm_i_last = np.linalg.norm(mfcc_morphed_point - mfcc_target_point)
+    norm_i_0 = np.linalg.norm(np.array(mfcc_morphed_point) - np.array(mfcc_source_point))
+    norm_i_last = np.linalg.norm(np.array(mfcc_morphed_point) - np.array(mfcc_target_point))
 
     # Avoid division by zero
     denominator = norm_i_0 + norm_i_last
@@ -37,8 +33,7 @@ def correspondence_mfccs(mfcc_source_point: tuple[float], mfcc_morphed_point: tu
 
     return coeff
 
-def compute_soundmorpher_correspondence_mfccs():
-    points_csv = f"exp_invalidate_metrics_example_1/generated/generated_intermediate_points.csv"
+def compute_soundmorpher_correspondence_mfccs(points_csv: str, metric_csv: str):
     
     trajectories = []
     with open(points_csv, 'r') as f:
@@ -46,10 +41,15 @@ def compute_soundmorpher_correspondence_mfccs():
         next(reader)  # Skip the header row
 
         for row in reader:
-            trajectories.append(row)
+            # Convert each value to float and group into tuples of 5 parameters
+            points = [
+                list(map(float, row[i:i+2]))
+                for i in range(0, len(row), 2)
+            ]
+            trajectories.append(points)
     
     correspondence_values = []
-    for trajectory in tqdm(trajectories, desc=f"Computing LCS on morphs", total=len(trajectories)):
+    for trajectory in tqdm(trajectories, desc=f"Computing Correspondence on morphs", total=len(trajectories)):
 
         source = trajectory[0]
         middle = trajectory[len(trajectory)//2]
@@ -59,7 +59,7 @@ def compute_soundmorpher_correspondence_mfccs():
         correspondence_values.append(correspondence_value)
 
     # Write correspondence values in a csv file
-    with open(f"exp_invalidate_metrics_example_1/generated/soundmorpher_correspondence_mfccs_values.csv", "w", newline="") as csvfile:
+    with open(metric_csv, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Row", "Middle Morphing Audio Correspondence MFCCs"])
         for i, correspondence_value in enumerate(correspondence_values):

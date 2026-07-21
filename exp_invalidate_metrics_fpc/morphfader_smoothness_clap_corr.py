@@ -1,11 +1,9 @@
-import argparse
-import os  # Library for interacting with the operating system
 from scipy.stats import pearsonr
 import numpy as np
 import re
 import csv
 
-import tqdm
+from tqdm import tqdm
 
 def smoothness_clap_corr(morphed_audios_embeddings, alpha_values):
     """
@@ -23,7 +21,7 @@ def smoothness_clap_corr(morphed_audios_embeddings, alpha_values):
     
     smoothness_values = []
     for i in range(len(morphed_audios_embeddings)):
-        dist = np.linalg.norm(morphed_audios_embeddings[i] - morphed_audios_embeddings[0]) # Assuming the source is the first embedding of the list
+        dist = np.linalg.norm(np.array(morphed_audios_embeddings[i]) - np.array(morphed_audios_embeddings[0])) # Assuming the source is the first embedding of the list
         smoothness_values.append(dist)
 
     pearson_corr, p = pearsonr(alpha_values, smoothness_values)
@@ -31,8 +29,7 @@ def smoothness_clap_corr(morphed_audios_embeddings, alpha_values):
     return pearson_corr, p
 
 
-def compute_smoothness_clap_corr():
-    points_csv = f"exp_invalidate_metrics_example_1/generated/generated_intermediate_points.csv"
+def compute_smoothness_clap_corr(points_csv: str, metric_csv: str):
     
     trajectories = []
     with open(points_csv, 'r') as f:
@@ -40,7 +37,12 @@ def compute_smoothness_clap_corr():
         next(reader)  # Skip the header row
 
         for row in reader:
-            trajectories.append(row)
+            # Convert each value to float and group into tuples of 5 parameters
+            points = [
+                list(map(float, row[i:i+2]))
+                for i in range(0, len(row), 2)
+            ]
+            trajectories.append(points)
     
     pearson_corrs = []
     for trajectory in tqdm(trajectories, desc=f"Computing smoothness-CLAP correlation on morphs", total=len(trajectories)):
@@ -50,7 +52,7 @@ def compute_smoothness_clap_corr():
         pearson_corrs.append((pearson_cor, p))
 
     # Write the values in a csv file
-    with open(f"exp_invalidate_metrics_example_1/generated/smoothness_clap_corr.csv", "w", newline="") as csvfile:
+    with open(metric_csv, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Row", "Pearson correlation", "P-value"])
         for i, (pearson_cor, p) in enumerate(pearson_corrs):

@@ -51,7 +51,7 @@ def load_trajectories_from_csv(filename):
         for row in reader:
             # Convert each value to float and group into tuples of 5 parameters
             points = [
-                tuple(map(float, row[i:i+5]))
+                list(map(float, row[i:i+5]))
                 for i in range(0, len(row), 5)
             ]
             trajectories.append(points)
