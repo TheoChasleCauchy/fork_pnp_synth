@@ -65,11 +65,14 @@ def load_and_extract_couples(csv_file_path: str) -> List[Tuple[List[float], List
     # Load the CSV file
     df = pd.read_csv(csv_file_path, header=None)
 
+    # Skip header
+    df = df.iloc[1:]
+
     # Extract the couples (A, B) as tuples of lists
     couples = []
     for _, row in df.iterrows():
-        A = row[:5].tolist()  # First 5 elements as vector A
-        B = row[5:10].tolist()  # Next 5 elements as vector B
+        A = [float(x) for x in row[:5].tolist()]  # First 5 elements as vector A
+        B = [float(x) for x in row[5:10].tolist()]  # Next 5 elements as vector B
         couples.append((A, B))
 
     return couples
@@ -82,8 +85,15 @@ def generate_and_save_trajectories(seed, points_couples_filename: str, num_inter
     trajectories = []
     thetas = load_and_extract_couples(points_couples_filename)
     for theta in thetas:
-        # Flatten the list of thetas into a single row
-        row = [val for val in theta]
+        row = []
+        row.extend(theta[0])
+
+        intermediates = np.linspace(theta[0], theta[-1], num_intermediate_samples+2)[1:-1]
+        for intermediate in intermediates:
+            row.extend(intermediate)
+
+        row.extend(theta[-1])
+
         trajectories.append(row)
 
     # Save to CSV

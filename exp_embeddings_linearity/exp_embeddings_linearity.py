@@ -17,7 +17,7 @@ num_intermediate_samples = 10
 #               Compute random trajectories              -
 # --------------------------------------------------------
 
-## 1. Generate random trajectories of points in a 2D space
+# 1. Generate random trajectories of points in a 2D space
 generate_and_save_random_trajectories(seed, number_of_couples, num_intermediate_samples, filename="exp_embeddings_linearity/generated/random_thetas_trajectories.csv")
 
 ## 2. Load the generated trajectories
@@ -28,17 +28,17 @@ audio_dir = "exp_embeddings_linearity/generated/random_audio"
 os.makedirs(audio_dir, exist_ok=True)
 synthesize_audios_trajectories(trajectories, logscale=False, audio_dir=audio_dir)
 
-# ## 4. Compute embeddings
-# models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
-# embeddings_dir = "exp_embeddings_linearity/generated/random_embeddings/"
-# compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir)
+## 4. Compute embeddings
+models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
+embeddings_dir = "exp_embeddings_linearity/generated/random_embeddings/"
+compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir)
 
-# ## 5. Compute sobolev distance
-# results_dir = f"exp_embeddings_linearity/generated/results/random/"
-# os.makedirs(results_dir, exist_ok=True)
-# for model_name in models:
-#     embeddings_dir = f"exp_embeddings_linearity/generated/random_embeddings/{model_name}"
-#     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
+## 5. Compute sobolev distance
+results_dir = f"exp_embeddings_linearity/generated/results/random/"
+os.makedirs(results_dir, exist_ok=True)
+for model_name in models:
+    embeddings_dir = f"exp_embeddings_linearity/generated/random_embeddings/{model_name}"
+    compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
 
 # --------------------------------------------------------
 #                Compute experiments points              -
@@ -57,17 +57,17 @@ os.makedirs(audio_dir, exist_ok=True)
 
 synthesize_audios_trajectories(trajectories, logscale=False, audio_dir=audio_dir)
 
-# ## 4. Compute embeddings
-# models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
+## 4. Compute embeddings
+models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
 
-# compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir)
+compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir)
 
-# ## 5. Compute sobolev distance
-# results_dir = f"exp_embeddings_linearity/generated/results/experiment/"
-# os.makedirs(results_dir, exist_ok=True)
-# for model_name in models:
-#     embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
-#     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
+## 5. Compute sobolev distance
+results_dir = f"exp_embeddings_linearity/generated/results/experiment/"
+os.makedirs(results_dir, exist_ok=True)
+for model_name in models:
+    embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
+    compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
 
 # models = ["VGGish", "MSCLAP", "MERT_v0-public", "MERT_v1-95M", "MERT_v1-330M", "LaionCLAP_audio", "LaionCLAP_music"]
 # make_table(results_dir, models)
