@@ -29,7 +29,7 @@ def smoothness_clap_corr(morphed_audios_embeddings, alpha_values):
     return pearson_corr, p
 
 
-def compute_smoothness_clap_corr(points_csv: str, metric_csv: str):
+def compute_smoothness_clap_corr(points_csv: str, metric_csv: str, dimensions: int = 2):
     
     trajectories = []
     with open(points_csv, 'r') as f:
@@ -39,8 +39,8 @@ def compute_smoothness_clap_corr(points_csv: str, metric_csv: str):
         for row in reader:
             # Convert each value to float and group into tuples of 5 parameters
             points = [
-                list(map(float, row[i:i+2]))
-                for i in range(0, len(row), 2)
+                list(map(float, row[i:i+dimensions]))
+                for i in range(0, len(row), dimensions)
             ]
             trajectories.append(points)
     

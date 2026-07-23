@@ -51,7 +51,7 @@ def sobolev_distance(k: int, p: int, f, g, alpha_values):
 
     return dist.item()
 
-def compute_sobolev_distances(points_csv: str, metrics_folder: str):
+def compute_sobolev_distances(points_csv: str, metrics_folder: str, dimensions: int = 2):
 
     trajectories = []
     with open(points_csv, 'r') as f:
@@ -61,8 +61,8 @@ def compute_sobolev_distances(points_csv: str, metrics_folder: str):
         for row in reader:
             # Convert each value to float and group into tuples of 5 parameters
             points = [
-                list(map(float, row[i:i+2]))
-                for i in range(0, len(row), 2)
+                list(map(float, row[i:i+dimensions]))
+                for i in range(0, len(row), dimensions)
             ]
             trajectories.append(points)
     

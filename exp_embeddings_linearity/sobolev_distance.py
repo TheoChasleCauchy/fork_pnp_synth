@@ -98,6 +98,8 @@ def compute_sobolev_distances(embeddings_folder, results_dir, model_name, trajec
             writer.writerow(["Mean Sobolev Distance", f"{np.mean(sobolev_dists)} +- {np.std(sobolev_dists)}"])
             
 def make_table(results_dir, models):
+    import re
+
     # Initialize a dictionary to store the mean and std for each (k, p) and model
     table_data = {}
 
@@ -107,26 +109,33 @@ def make_table(results_dir, models):
 
         for model_name in models:
             # Get metric value of random baseline
-            random_csv_path = os.path.join(results_dir, "random", f"random_sobolev_dists_{k}_{p}.csv")
+            random_csv_path = os.path.join(results_dir, "random", model_name, f"{model_name}_sobolev_dists_{k}_{p}.csv")
             if os.path.exists(random_csv_path):
                 with open(random_csv_path, "r") as csvfile:
                     reader = csv.reader(csvfile)
                     rows = list(reader)
                     # Extract the last row, which contains the mean and std
                     random_mean_std_str = rows[-1][1]
+                    matches = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", random_mean_std_str)
+                    random_mean, _ = map(float, matches)
             else:
                 raise FileNotFoundError(f"File not found: {random_csv_path}")
 
             # Get metric value
-            csv_path = os.path.join(results_dir, "embeddings", model_name, f"{model_name}_sobolev_dists_{k}_{p}.csv")
+            csv_path = os.path.join(results_dir, "experiment", model_name, f"{model_name}_sobolev_dists_{k}_{p}.csv")
             with open(csv_path, "r") as csvfile:
                 reader = csv.reader(csvfile)
                 rows = list(reader)
                 # Extract the last row, which contains the mean and std
                 mean_std_str = rows[-1][1]
+
+                # Normalize by random value
+                matches = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", mean_std_str)
+                mean, std = map(float, matches)
+                mean_normalized, std_normalized = mean/random_mean, std/random_mean
+                mean_std_str = f"{mean_normalized:.2f} +- {std_normalized:.2f}"
+
                 table_data[row_key][model_name] = mean_std_str
-            
-            table_data[row_key][model_name] /= random_mean_std_str
 
     # Write the table to a CSV file
     output_csv_path = os.path.join(results_dir, "sobolev_distances_table.csv")

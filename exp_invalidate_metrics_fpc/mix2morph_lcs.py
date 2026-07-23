@@ -1,24 +1,16 @@
 import csv
-import pandas as pd
 import torch
 import numpy as np  # Library for numerical operations
 from sklearn.decomposition import PCA
-import dac
 import csv
 from tqdm import tqdm
 
-# Download a model
-model_path = dac.utils.download(model_type="44khz")
-model = dac.DAC.load(model_path)
-model.sample_rate = 24000
-model.to('cuda')
-
-def compute_lcs(points_coordinates):
+def compute_lcs(middle_point):
     """
     Compute the Latent Component Score (LCS) for a list of morphed audio clips.
 
     Args:
-        points_coordinates: List of coordinate points.
+        middle_point: matrix of shape (n_samples, n_features).
 
     Returns:
         LCS value.
@@ -26,7 +18,7 @@ def compute_lcs(points_coordinates):
 
     with torch.no_grad():
         # Step 1: Extract latent features using DAC
-        latents = points_coordinates
+        latents = middle_point
 
         # Step 2: Apply PCA to the latent features
         pca = PCA(n_components=2)
@@ -41,7 +33,7 @@ def compute_lcs(points_coordinates):
 
     return lcs_value
 
-def compute_mix2morph_lcs(points_csv: str, metric_csv: str):
+def compute_mix2morph_lcs(points_csv: str, metric_csv: str, dimensions=2):
     
     trajectories = []
     with open(points_csv, 'r') as f:
@@ -51,8 +43,8 @@ def compute_mix2morph_lcs(points_csv: str, metric_csv: str):
         for row in reader:
             # Convert each value to float and group into tuples of 5 parameters
             points = [
-                list(map(float, row[i:i+2]))
-                for i in range(0, len(row), 2)
+                list(map(float, row[i:i+dimensions]))
+                for i in range(0, len(row), dimensions)
             ]
             trajectories.append(points)
     

@@ -3,7 +3,7 @@ import numpy as np
 import csv
 from tqdm import tqdm
 
-def process_csv(input_path: str):
+def process_csv(input_path: str, dimensions: int = 2):
     
     trajectories = []
     with open(input_path, 'r') as f:
@@ -13,8 +13,8 @@ def process_csv(input_path: str):
         for row in reader:
             # Convert each value to float and group into tuples of 5 parameters
             points = [
-                list(map(float, row[i:i+2]))
-                for i in range(0, len(row), 2)
+                list(map(float, row[i:i+dimensions]))
+                for i in range(0, len(row), dimensions)
             ]
             trajectories.append(points)
 
@@ -26,9 +26,9 @@ def process_csv(input_path: str):
 
     return intermediateness_values
 
-def compute_intermediateness_total_cdpam(points_csv: str, metric_csv: str):
+def compute_intermediateness_total_cdpam(points_csv: str, metric_csv: str, dimensions: int = 2):
 
-    intermediateness_values = process_csv(points_csv)
+    intermediateness_values = process_csv(points_csv, dimensions)
 
     # Write intermediateness values in a csv file
     with open(metric_csv, "w", newline="") as csvfile:

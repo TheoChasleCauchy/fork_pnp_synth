@@ -3,76 +3,167 @@ import os
 import numpy as np
 import csv
 
-def sample_couples_2D_space(n_couples, filename, seed=None):
-    if seed is not None:
-        np.random.seed(seed)
-    
+def sample_couples_specified_dimensions_space(n_couples, filename, dimensions=2):    
     couples = []
     for _ in range(n_couples):
-        a = np.random.rand(2) * 10  # Random point in 2D space
-        b = np.random.rand(2) * 10  # Random point in 2D space
-        couples.append([a[0], a[1], b[0], b[1]])
+        a = np.random.rand(dimensions) * 10  # Random point in specified dimensions space
+        b = np.random.rand(dimensions) * 10  # Random point in specified dimensions space
+        couples.append(list(a) + list(b))
     
     # Save to CSV
     with open(filename, 'w', newline='') as f:
         writer = csv.writer(f)
-        header = [
-            "A_X",
-            "A_Y",
-            "B_X",
-            "B_Y"
-        ]
+        header = []
+        for i in range(dimensions):
+            header.append(f"A_{i}")
+        for i in range(dimensions):
+            header.append(f"B_{i}")
+        
         writer.writerow(header)
         writer.writerows(couples)
     
     return couples
 
-def create_intermediate_points(couples, num_intermediate_samples, filename):
+def create_fpc1_intermediate_points(couples, num_intermediate_samples, filename, dimensions=2):
     trajectories_points = []
-    for a_x, a_y, b_x, b_y in couples:
-        a = np.array([a_x, a_y])
-        b = np.array([b_x, b_y])
-        trajectory_points = []
-        trajectory_points.extend(a)
-        # Create intermediate points on the circle
-        for i in range(1, num_intermediate_samples+1):
-            random_angle = np.random.rand(1) * 2 * np.pi
-            distance_from_a = np.linalg.norm(a - b) * i / (num_intermediate_samples+2)
-            x = a_x + distance_from_a * np.cos(random_angle)
-            y = a_y + distance_from_a * np.sin(random_angle)
-            trajectory_points.extend([x[0], y[0]])
-            
-        trajectory_points.extend(b)
-        
+    for couple in couples:
+        a = np.array(couple[:dimensions])
+        b = np.array(couple[dimensions:2*dimensions])
+
+        trajectory_points = a.tolist()
+
+        for i in range(1, num_intermediate_samples + 1):
+            random_direction = np.random.randn(dimensions)
+            random_direction /= np.linalg.norm(random_direction)  # Normalize to unit vector
+
+            distance_from_a = np.linalg.norm(a - b) * i / (num_intermediate_samples + 2)
+            intermediate_point = a + distance_from_a * random_direction
+            trajectory_points.extend(intermediate_point.tolist())
+
+        trajectory_points.extend(b.tolist())
         trajectories_points.append(trajectory_points)
+
+    # Generate header dynamically
+    header = []
+    header.extend([f"A_{i}" for i in range(dimensions)])
+    for i in range(num_intermediate_samples):
+        header.extend([f"P{i}_{j}" for j in range(dimensions)])
+    header.extend([f"B_{i}" for i in range(dimensions)])
 
     # Save to CSV
     with open(filename, 'w', newline='') as f:
         writer = csv.writer(f)
-        header = [
-            "A_X", "A_Y", *[f"P{i}_X" for i in range(num_intermediate_samples)], *[f"P{i}_Y" for i in range(num_intermediate_samples)], "B_X", "B_Y"
-        ]
         writer.writerow(header)
         for trajectory in trajectories_points:
             writer.writerow(trajectory)
-    
+
     return trajectories_points
 
-def create_linear_intermediate_points(couples, num_intermediate_samples, filename):
+def create_fpc2_intermediate_points(couples, num_intermediate_samples, filename, dimensions=2):
+    alpha_values = [0.01 * i for i in range(1, num_intermediate_samples)] + [0.99]
+
     trajectories_points = []
-    for a_x, a_y, b_x, b_y in couples:
-        a = np.array([a_x, a_y])
-        b = np.array([b_x, b_y])
+    for couple in couples:
+        a = np.array(couple[:dimensions])
+        b = np.array(couple[dimensions:2*dimensions])
+
+        trajectory_points = a.tolist()
+
+        for i in range(num_intermediate_samples):
+            distance_from_a = (b-a) * alpha_values[i]
+            intermediate_point = a + distance_from_a
+            trajectory_points.extend(intermediate_point.tolist())
+
+        trajectory_points.extend(b.tolist())
+        trajectories_points.append(trajectory_points)
+
+    # Generate header dynamically
+    header = []
+    header.extend([f"A_{i}" for i in range(dimensions)])
+    for i in range(num_intermediate_samples):
+        header.extend([f"P{i}_{j}" for j in range(dimensions)])
+    header.extend([f"B_{i}" for i in range(dimensions)])
+
+    # Save to CSV
+    with open(filename, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        for trajectory in trajectories_points:
+            writer.writerow(trajectory)
+
+    return trajectories_points
+
+def create_fpc3_intermediate_points(couples, num_intermediate_samples, filename, dimensions=2):
+    def normal_vector(v):
+        # Generate a random vector of the same dimension as v
+        r = np.random.randn(len(v))
+
+        # Substract the projection of r onto v
+        projection = np.dot(r, v) / np.dot(v, v) * v
+        normal = r - projection
+
+        # Normalize the result
+        normal = normal / np.linalg.norm(normal)
+
+        return normal
+
+    trajectories_points = []
+    for couple in couples:
+        a = np.array(couple[:dimensions])
+        b = np.array(couple[dimensions:2*dimensions])
+
+        trajectory_points = a.tolist()
+
+        # Create a point equidistant from a and b but not on the segment [AB]
+        distance_from_segment_middle = 2 * np.random.rand() * np.linalg.norm(a - b) + np.linalg.norm(a - b) * 0.1 # Distance in [0.1*AB, 2*AB[
+        m = a + (b-a) / 2 + normal_vector(b - a) * distance_from_segment_middle # Chasles Relation
+
+        alpha_values = np.linspace(0.0, 1.0, num_intermediate_samples//2 + 2)[1:-1]
+        for alpha in alpha_values:
+            vector_from_a = (m-a) * alpha
+            intermediate_point = a + vector_from_a
+            trajectory_points.extend(intermediate_point.tolist())
+
+        trajectory_points.extend(m.tolist())
+
+        for alpha in alpha_values:
+            vector_to_b = (b-m) * alpha
+            intermediate_point = m + vector_to_b
+            trajectory_points.extend(intermediate_point.tolist())
+
+        trajectory_points.extend(b.tolist())
+        trajectories_points.append(trajectory_points)
+
+    # Generate header dynamically
+    header = []
+    header.extend([f"A_{i}" for i in range(dimensions)])
+    for i in range(num_intermediate_samples):
+        header.extend([f"P{i}_{j}" for j in range(dimensions)])
+    header.extend([f"B_{i}" for i in range(dimensions)])
+
+    # Save to CSV
+    with open(filename, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        for trajectory in trajectories_points:
+            writer.writerow(trajectory)
+
+    return trajectories_points
+
+def create_linear_intermediate_points(couples, num_intermediate_samples, filename, dimensions=2):
+    trajectories_points = []
+    for couple in couples:
+        a = np.array(couple[:dimensions])
+        b = np.array(couple[dimensions:2*dimensions])
         trajectory_points = []
-        trajectory_points.extend(a)
+        trajectory_points.extend(a.tolist())
         # Create intermediate points on the line segment
         for i in range(1, num_intermediate_samples+1):
             alpha = i / (num_intermediate_samples+1)
-            x = a_x + alpha * (b_x - a_x)
-            y = a_y + alpha * (b_y - a_y)
-            trajectory_points.extend([x, y])
+            intermediate_point = a + alpha * (b - a)
+            trajectory_points.extend(intermediate_point.tolist())
             
-        trajectory_points.extend(b)
+        trajectory_points.extend(b.tolist())
         
         trajectories_points.append(trajectory_points)
 
@@ -80,28 +171,33 @@ def create_linear_intermediate_points(couples, num_intermediate_samples, filenam
     with open(filename, 'w', newline='') as f:
         writer = csv.writer(f)
         header = [
-            "A_X", "A_Y", *[f"P{i}_X" for i in range(num_intermediate_samples)], *[f"P{i}_Y" for i in range(num_intermediate_samples)], "B_X", "B_Y"
+            f"A_{i}" for i in range(dimensions)
         ]
+        header.extend([
+            f"P{i}_{j}" for i in range(num_intermediate_samples) for j in range(dimensions)
+        ])
+        header.extend([
+            f"B_{i}" for i in range(dimensions)
+        ])
         writer.writerow(header)
         for trajectory in trajectories_points:
             writer.writerow(trajectory)
     
     return trajectories_points
 
-def create_random_intermediate_points(couples, num_intermediate_samples, filename):
+def create_random_intermediate_points(couples, num_intermediate_samples, filename, dimensions=2):
     trajectories_points = []
-    for a_x, a_y, b_x, b_y in couples:
-        a = np.array([a_x, a_y])
-        b = np.array([b_x, b_y])
+    for couple in couples:
+        a = np.array(couple[:dimensions])
+        b = np.array(couple[dimensions:2*dimensions])
         trajectory_points = []
-        trajectory_points.extend(a)
-        # Create random intermediate points in the whole 2D space
-        for i in range(1, num_intermediate_samples+1):
-            x = np.random.rand(1) * 10  # Random point in 2D space
-            y = np.random.rand(1) * 10  # Random point in 2D space
-            trajectory_points.extend([x.item(), y.item()])
+        trajectory_points.extend(a.tolist())
+        # Create random intermediate points in the whole space
+        for _ in range(num_intermediate_samples):
+            random_point = np.random.rand(dimensions) * 10  # Random point in the space
+            trajectory_points.extend(random_point.tolist())
             
-        trajectory_points.extend(b)
+        trajectory_points.extend(b.tolist())
         
         trajectories_points.append(trajectory_points)
 
@@ -109,8 +205,14 @@ def create_random_intermediate_points(couples, num_intermediate_samples, filenam
     with open(filename, 'w', newline='') as f:
         writer = csv.writer(f)
         header = [
-            "A_X", "A_Y", *[f"P{i}_X" for i in range(num_intermediate_samples)], *[f"P{i}_Y" for i in range(num_intermediate_samples)], "B_X", "B_Y"
+            f"A_{i}" for i in range(dimensions)
         ]
+        header.extend([
+            f"P{i}_{j}" for i in range(num_intermediate_samples) for j in range(dimensions)
+        ])
+        header.extend([
+            f"B_{i}" for i in range(dimensions)
+        ])
         writer.writerow(header)
         for trajectory in trajectories_points:
             writer.writerow(trajectory)
@@ -196,8 +298,12 @@ def make_table():
         
         return metrics_values
         
-    results_dir_fpc_1 = "exp_invalidate_metrics_fpc/generated/metrics/fpc_1"
-    fpc_1_metrics_values = get_metrics_values(results_dir_fpc_1)
+    results_dir_fpc1 = "exp_invalidate_metrics_fpc/generated/metrics/fpc1"
+    fpc1_metrics_values = get_metrics_values(results_dir_fpc1)
+    results_dir_fpc2 = "exp_invalidate_metrics_fpc/generated/metrics/fpc2"
+    fpc2_metrics_values = get_metrics_values(results_dir_fpc2)
+    results_dir_fpc3 = "exp_invalidate_metrics_fpc/generated/metrics/fpc3"
+    fpc3_metrics_values = get_metrics_values(results_dir_fpc3)
     results_dir_linear = "exp_invalidate_metrics_fpc/generated/metrics/linear"
     linear_metrics_values = get_metrics_values(results_dir_linear)
     results_dir_random = "exp_invalidate_metrics_fpc/generated/metrics/random"
@@ -210,58 +316,71 @@ def make_table():
         writer = csv.writer(csvfile)
 
         # Write header: metrics as rows
-        # header = ["Sobolev Distance (0, 2) $\downarrow$", "Sobolev Distance (1, 2) $\downarrow$"]
-        header = ["Metric", "Ideal Value", "FPC 1 Value", "Random Value"]
+        header = ["Metric", "Ideal Value", "Random Value", "FPC 1 Value", "FPC 2 Value", "FPC 3 Value"]
         writer.writerow(header)
 
         # Write rows: models as rows, (k, p) as columns, mean+-std as values
         row = [
             "LCS",
             f"{linear_metrics_values['LCS'][0]:.2f} +- {linear_metrics_values['LCS'][1]:.2f}",
-            f"{fpc_1_metrics_values['LCS'][0]:.2f} +- {fpc_1_metrics_values['LCS'][1]:.2f}",
-            f"{random_metrics_values['LCS'][0]:.2f} +- {random_metrics_values['LCS'][1]:.2f}"
-        ]
-        writer.writerow(row)
-        row = [
-            "Smoothness CLAP",
-            f"{linear_metrics_values['Smoothness CLAP'][0]:.2f} +- {linear_metrics_values['Smoothness CLAP'][1]:.2f}",
-            f"{fpc_1_metrics_values['Smoothness CLAP'][0]:.2f} +- {fpc_1_metrics_values['Smoothness CLAP'][1]:.2f}",
-            f"{random_metrics_values['Smoothness CLAP'][0]:.2f} +- {random_metrics_values['Smoothness CLAP'][1]:.2f}"
+            f"{random_metrics_values['LCS'][0]:.2f} +- {random_metrics_values['LCS'][1]:.2f}",
+            f"{fpc1_metrics_values['LCS'][0]:.2f} +- {fpc1_metrics_values['LCS'][1]:.2f}",
+            f"{fpc2_metrics_values['LCS'][0]:.2f} +- {fpc2_metrics_values['LCS'][1]:.2f}",
+            f"{fpc3_metrics_values['LCS'][0]:.2f} +- {fpc3_metrics_values['LCS'][1]:.2f}",
         ]
         writer.writerow(row)
         row = [
             "Correspondence",
             f"{linear_metrics_values['Correspondence'][0]:.2f} +- {linear_metrics_values['Correspondence'][1]:.2f}",
-            f"{fpc_1_metrics_values['Correspondence'][0]:.2f} +- {fpc_1_metrics_values['Correspondence'][1]:.2f}",
-            f"{random_metrics_values['Correspondence'][0]:.2f} +- {random_metrics_values['Correspondence'][1]:.2f}"
+            f"{random_metrics_values['Correspondence'][0]:.2f} +- {random_metrics_values['Correspondence'][1]:.2f}",
+            f"{fpc1_metrics_values['Correspondence'][0]:.2f} +- {fpc1_metrics_values['Correspondence'][1]:.2f}",
+            f"{fpc2_metrics_values['Correspondence'][0]:.2f} +- {fpc2_metrics_values['Correspondence'][1]:.2f}",
+            f"{fpc3_metrics_values['Correspondence'][0]:.2f} +- {fpc3_metrics_values['Correspondence'][1]:.2f}"
+        ]
+        writer.writerow(row)
+        row = [
+            "Smoothness CLAP",
+            f"{linear_metrics_values['Smoothness CLAP'][0]:.2f} +- {linear_metrics_values['Smoothness CLAP'][1]:.2f}",
+            f"{random_metrics_values['Smoothness CLAP'][0]:.2f} +- {random_metrics_values['Smoothness CLAP'][1]:.2f}",
+            f"{fpc1_metrics_values['Smoothness CLAP'][0]:.2f} +- {fpc1_metrics_values['Smoothness CLAP'][1]:.2f}",
+            f"{fpc2_metrics_values['Smoothness CLAP'][0]:.2f} +- {fpc2_metrics_values['Smoothness CLAP'][1]:.2f}",
+            f"{fpc3_metrics_values['Smoothness CLAP'][0]:.2f} +- {fpc3_metrics_values['Smoothness CLAP'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
             "Intermediateness",
             f"{linear_metrics_values['Intermediateness'][0]:.2f} +- {linear_metrics_values['Intermediateness'][1]:.2f}",
-            f"{fpc_1_metrics_values['Intermediateness'][0]:.2f} +- {fpc_1_metrics_values['Intermediateness'][1]:.2f}",
-            f"{random_metrics_values['Intermediateness'][0]:.2f} +- {random_metrics_values['Intermediateness'][1]:.2f}"
+            f"{random_metrics_values['Intermediateness'][0]:.2f} +- {random_metrics_values['Intermediateness'][1]:.2f}",
+            f"{fpc1_metrics_values['Intermediateness'][0]:.2f} +- {fpc1_metrics_values['Intermediateness'][1]:.2f}",
+            f"{fpc2_metrics_values['Intermediateness'][0]:.2f} +- {fpc2_metrics_values['Intermediateness'][1]:.2f}",
+            f"{fpc3_metrics_values['Intermediateness'][0]:.2f} +- {fpc3_metrics_values['Intermediateness'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
             "Smoothness CDPAM",
             f"{linear_metrics_values['Smoothness CDPAM'][0]:.2f} +- {linear_metrics_values['Smoothness CDPAM'][1]:.2f}",
-            f"{fpc_1_metrics_values['Smoothness CDPAM'][0]:.2f} +- {fpc_1_metrics_values['Smoothness CDPAM'][1]:.2f}",
-            f"{random_metrics_values['Smoothness CDPAM'][0]:.2f} +- {random_metrics_values['Smoothness CDPAM'][1]:.2f}"
+            f"{random_metrics_values['Smoothness CDPAM'][0]:.2f} +- {random_metrics_values['Smoothness CDPAM'][1]:.2f}",
+            f"{fpc1_metrics_values['Smoothness CDPAM'][0]:.2f} +- {fpc1_metrics_values['Smoothness CDPAM'][1]:.2f}",
+            f"{fpc2_metrics_values['Smoothness CDPAM'][0]:.2f} +- {fpc2_metrics_values['Smoothness CDPAM'][1]:.2f}",
+            f"{fpc3_metrics_values['Smoothness CDPAM'][0]:.2f} +- {fpc3_metrics_values['Smoothness CDPAM'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
             "Sobolev (0, 2)",
             f"{linear_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {linear_metrics_values['Sobolev (0, 2)'][1]:.2f}",
-            f"{fpc_1_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {fpc_1_metrics_values['Sobolev (0, 2)'][1]:.2f}",
-            f"{random_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {random_metrics_values['Sobolev (0, 2)'][1]:.2f}"
+            f"{random_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {random_metrics_values['Sobolev (0, 2)'][1]:.2f}",
+            f"{fpc1_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {fpc1_metrics_values['Sobolev (0, 2)'][1]:.2f}",
+            f"{fpc2_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {fpc2_metrics_values['Sobolev (0, 2)'][1]:.2f}",
+            f"{fpc3_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {fpc3_metrics_values['Sobolev (0, 2)'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
             "Sobolev (1, 2)",
             f"{linear_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {linear_metrics_values['Sobolev (1, 2)'][1]:.2f}",
-            f"{fpc_1_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpc_1_metrics_values['Sobolev (1, 2)'][1]:.2f}",
-            f"{random_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {random_metrics_values['Sobolev (1, 2)'][1]:.2f}"
+            f"{random_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {random_metrics_values['Sobolev (1, 2)'][1]:.2f}",
+            f"{fpc1_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpc1_metrics_values['Sobolev (1, 2)'][1]:.2f}",
+            f"{fpc2_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpc2_metrics_values['Sobolev (1, 2)'][1]:.2f}",
+            f"{fpc3_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpc3_metrics_values['Sobolev (1, 2)'][1]:.2f}"
         ]
         writer.writerow(row)
     
