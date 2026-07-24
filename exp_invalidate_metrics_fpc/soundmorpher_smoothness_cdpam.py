@@ -1,35 +1,28 @@
-import re
+import torch
 import numpy as np
 import csv
 from tqdm import tqdm
 
-def process_csv(input_path: str, dimensions: int = 2):
+from exp_functions import embeddings
+
+def process_csv(input_path: str):
+    # Load trajectories tensor
+    trajectories_tensor = torch.load(input_path)
+    assert trajectories_tensor[0][0].shape == torch.Size(embeddings["cdpam"]), f"Expected shape {embeddings['cdpam']}, got {trajectories_tensor[0][0].shape}"
     
-    trajectories = []
-    with open(input_path, 'r') as f:
-        reader = csv.reader(f)
-        next(reader)  # Skip the header row
-
-        for row in reader:
-            # Convert each value to float and group into tuples of 5 parameters
-            points = [
-                list(map(float, row[i:i+dimensions]))
-                for i in range(0, len(row), dimensions)
-            ]
-            trajectories.append(points)
-
     # Compute smoothness value 
     smoothness_values = []
-    for trajectory in tqdm(trajectories, desc="Computing Smoothness", total=len(trajectories)):
-        dists = [np.linalg.norm(np.array(trajectory[i+1]) - np.array(trajectory[i])) for i in range(len(trajectory)-1)]
-        smoothness_mean, smoothness_std = np.mean(dists), np.std(dists)
-        smoothness_values.append((smoothness_mean, smoothness_std))
+    for trajectory in tqdm(trajectories_tensor, desc="Computing Smoothness", total=len(trajectories_tensor)):
+        dists = [torch.linalg.norm(trajectory[i+1] - trajectory[i]) for i in range(len(trajectory)-1)]
+        smoothness_mean, smoothness_std = torch.mean(torch.stack(dists)), torch.std(torch.stack(dists))
+        smoothness_values.append((smoothness_mean.item(), smoothness_std.item()))
 
     return smoothness_values
 
-def compute_smoothness_mean_cdpam(points_csv: str, metric_csv: str, dimensions: int = 2):
-
-    smoothness_values = process_csv(points_csv, dimensions)
+def compute_smoothness_mean_cdpam(dirname: str, metric_csv: str, morph_type: str):
+    # Load trajectories tensor
+    trajectories_tensor_path = f"{dirname}/cdpam_{morph_type}_trajectories.pt"
+    smoothness_values = process_csv(trajectories_tensor_path)
 
     # Write smoothness values in a csv file
     with open(metric_csv, "w", newline="") as csvfile:

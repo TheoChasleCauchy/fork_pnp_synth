@@ -5,6 +5,8 @@ from sklearn.decomposition import PCA
 import csv
 from tqdm import tqdm
 
+from exp_functions import embeddings
+
 def compute_lcs(middle_point):
     """
     Compute the Latent Component Score (LCS) for a list of morphed audio clips.
@@ -33,27 +35,17 @@ def compute_lcs(middle_point):
 
     return lcs_value
 
-def compute_mix2morph_lcs(points_csv: str, metric_csv: str, dimensions=2):
-    
-    trajectories = []
-    with open(points_csv, 'r') as f:
-        reader = csv.reader(f)
-        next(reader)  # Skip the header row
+def compute_mix2morph_lcs(dirname: str, metric_csv: str, morph_type: str):
+    # Load trajectories tensor
+    trajectories_tensor_path = f"{dirname}/dac_{morph_type}_trajectories.pt"
+    trajectories_tensor = torch.load(trajectories_tensor_path)
 
-        for row in reader:
-            # Convert each value to float and group into tuples of 5 parameters
-            points = [
-                list(map(float, row[i:i+dimensions]))
-                for i in range(0, len(row), dimensions)
-            ]
-            trajectories.append(points)
-    
     lcs_values = []
-    for trajectory in tqdm(trajectories, desc=f"Computing LCS on morphs", total=len(trajectories)):
-        # Stack the tuples in the list
-        trajectory = np.array(trajectory)
+    for trajectory in tqdm(trajectories_tensor, desc=f"Computing LCS on morphs", total=len(trajectories_tensor)):
+        middle_point = trajectory[len(trajectory) // 2]
+        assert middle_point.shape == torch.Size(embeddings['dac']), f"Expected shape {embeddings['dac']}, got {middle_point.shape}"
 
-        lcs_value = compute_lcs(trajectory)
+        lcs_value = compute_lcs(middle_point)
         lcs_values.append(lcs_value)
 
     # Write lcs values in a csv file

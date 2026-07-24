@@ -1,223 +1,209 @@
 import os
-
-import numpy as np
+import torch
+from tqdm import tqdm
 import csv
 
-def sample_couples_specified_dimensions_space(n_couples, filename, dimensions=2):    
-    couples = []
-    for _ in range(n_couples):
-        a = np.random.rand(dimensions) * 10  # Random point in specified dimensions space
-        b = np.random.rand(dimensions) * 10  # Random point in specified dimensions space
-        couples.append(list(a) + list(b))
-    
-    # Save to CSV
-    with open(filename, 'w', newline='') as f:
-        writer = csv.writer(f)
-        header = []
-        for i in range(dimensions):
-            header.append(f"A_{i}")
-        for i in range(dimensions):
-            header.append(f"B_{i}")
-        
-        writer.writerow(header)
-        writer.writerows(couples)
-    
-    return couples
+embeddings = {
+    "dac": [72, 255], # 72, 255 # For a 5 second audio at 44100Hz
+    "clap": [512],
+    "mert": [768],
+    "cdpam": [1, 512],
+    "mfcc": [20, 256] # 20, 256 # For a 5 second audio at 44100Hz
+}
 
-def create_fpc1_intermediate_points(couples, num_intermediate_samples, filename, dimensions=2):
-    trajectories_points = []
-    for couple in couples:
-        a = np.array(couple[:dimensions])
-        b = np.array(couple[dimensions:2*dimensions])
+def sample_couples_specific_dimensions_space(n_couples, dirname):
+    os.makedirs(dirname, exist_ok=True)
 
-        trajectory_points = a.tolist()
+    for embedding, dimensions in embeddings.items():
+        if len(dimensions) == 1:
+            # Vector case (1D)
+            dim = dimensions[0]
+            couples = torch.rand(n_couples, 2, dim) * 10
+            filename = f"{dirname}/{embedding}_couples.pt"
+            torch.save(couples, filename)
+        else:
+            # Matrix case (2D)
+            rows, cols = dimensions
+            couples = torch.rand(n_couples, 2, rows, cols) * 10
+            filename = f"{dirname}/{embedding}_couples.pt"
+            torch.save(couples, filename)
 
-        for i in range(1, num_intermediate_samples + 1):
-            random_direction = np.random.randn(dimensions)
-            random_direction /= np.linalg.norm(random_direction)  # Normalize to unit vector
+def create_fpc1_intermediate_points(num_intermediate_samples, dirname):
+    for embedding in tqdm(embeddings.keys(), desc="Processing embeddings"):
+        # Load couples as torch tensor
+        couples = torch.load(f"{dirname}/{embedding}_couples.pt")
 
-            distance_from_a = np.linalg.norm(a - b) * i / (num_intermediate_samples + 2)
-            intermediate_point = a + distance_from_a * random_direction
-            trajectory_points.extend(intermediate_point.tolist())
+        trajectories = []
 
-        trajectory_points.extend(b.tolist())
-        trajectories_points.append(trajectory_points)
+        for couple in tqdm(couples, desc=f"Processing couples for embedding {embedding}"):
+            a, b = couple[0], couple[1]
 
-    # Generate header dynamically
-    header = []
-    header.extend([f"A_{i}" for i in range(dimensions)])
-    for i in range(num_intermediate_samples):
-        header.extend([f"P{i}_{j}" for j in range(dimensions)])
-    header.extend([f"B_{i}" for i in range(dimensions)])
+            # Initialize trajectory with point A
+            trajectory = [a]
 
-    # Save to CSV
-    with open(filename, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-        for trajectory in trajectories_points:
-            writer.writerow(trajectory)
+            # Generate intermediate points between A and B
+            for i in range(1, num_intermediate_samples + 1):
+                # Random direction in the same shape as A
+                random_direction = torch.randn_like(a)
+                random_direction = random_direction / torch.linalg.norm(random_direction)  # Normalize
 
-    return trajectories_points
+                # Distance from A proportional to progress
+                distance_from_a = torch.linalg.norm(a - b) * i / (num_intermediate_samples + 2)
+                intermediate_point = a + distance_from_a * random_direction
+                trajectory.append(intermediate_point)
 
-def create_fpc2_intermediate_points(couples, num_intermediate_samples, filename, dimensions=2):
+            # Add point B to complete the trajectory
+            trajectory.append(b)
+            assert len(trajectory) == num_intermediate_samples + 2
+            trajectories.append(torch.stack(trajectory))
+
+        # Stack all trajectories into a single tensor (shape: [n_trajectories, num_intermediate_samples + 2, *dimensions])
+        trajectories_tensor = torch.stack(trajectories)
+
+        # Save as PyTorch tensor
+        filename = f"{dirname}/{embedding}_fpc1_trajectories.pt"
+        torch.save(trajectories_tensor, filename)
+
+def create_fpc2_intermediate_points(num_intermediate_samples, dirname):
     alpha_values = [0.01 * i for i in range(1, num_intermediate_samples)] + [0.99]
 
-    trajectories_points = []
-    for couple in couples:
-        a = np.array(couple[:dimensions])
-        b = np.array(couple[dimensions:2*dimensions])
+    for embedding in tqdm(embeddings.keys(), desc="Processing embeddings"):
+        # Load couples as torch tensor
+        couples = torch.load(f"{dirname}/{embedding}_couples.pt")
 
-        trajectory_points = a.tolist()
+        trajectories = []
+        for couple in tqdm(couples, desc=f"Processing couples for embedding {embedding}"):
+            a, b = couple[0], couple[1]
 
-        for i in range(num_intermediate_samples):
-            distance_from_a = (b-a) * alpha_values[i]
-            intermediate_point = a + distance_from_a
-            trajectory_points.extend(intermediate_point.tolist())
+            # Initialize trajectory with point A
+            trajectory = [a]
 
-        trajectory_points.extend(b.tolist())
-        trajectories_points.append(trajectory_points)
+            for i in range(num_intermediate_samples):
+                distance_from_a = (b-a) * alpha_values[i]
+                intermediate_point = a + distance_from_a
+                trajectory.append(intermediate_point)
 
-    # Generate header dynamically
-    header = []
-    header.extend([f"A_{i}" for i in range(dimensions)])
-    for i in range(num_intermediate_samples):
-        header.extend([f"P{i}_{j}" for j in range(dimensions)])
-    header.extend([f"B_{i}" for i in range(dimensions)])
+            trajectory.append(b)
+            assert len(trajectory) == num_intermediate_samples + 2
+            trajectories.append(torch.stack(trajectory))
 
-    # Save to CSV
-    with open(filename, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-        for trajectory in trajectories_points:
-            writer.writerow(trajectory)
+        # Stack all trajectories into a single tensor (shape: [n_trajectories, num_intermediate_samples + 2, *dimensions])
+        trajectories_tensor = torch.stack(trajectories)
 
-    return trajectories_points
+        # Save as PyTorch tensor
+        filename = f"{dirname}/{embedding}_fpc2_trajectories.pt"
+        torch.save(trajectories_tensor, filename)
 
-def create_fpc3_intermediate_points(couples, num_intermediate_samples, filename, dimensions=2):
+def create_fpc3_intermediate_points(num_intermediate_samples, dirname):
     def normal_vector(v):
-        # Generate a random vector of the same dimension as v
-        r = np.random.randn(len(v))
+        # Generate a random tensor of the same shape as v
+        r = torch.randn_like(v)
 
-        # Substract the projection of r onto v
-        projection = np.dot(r, v) / np.dot(v, v) * v
+        # Flatten for dot product calculations
+        r_flat = r.reshape(-1)
+        v_flat = v.reshape(-1)
+
+        # Compute projection and normal vector
+        projection = torch.dot(r_flat, v_flat) / torch.dot(v_flat, v_flat) * v
         normal = r - projection
 
         # Normalize the result
-        normal = normal / np.linalg.norm(normal)
+        normal = normal / torch.linalg.norm(normal)
 
         return normal
 
-    trajectories_points = []
-    for couple in couples:
-        a = np.array(couple[:dimensions])
-        b = np.array(couple[dimensions:2*dimensions])
+    for embedding in tqdm(embeddings.keys(), desc="Processing embeddings"):
+        # Load couples as torch tensor
+        couples = torch.load(f"{dirname}/{embedding}_couples.pt")
 
-        trajectory_points = a.tolist()
+        trajectories = []
+        for couple in tqdm(couples, desc=f"Processing couples for embedding {embedding}"):
+            a, b = couple[0], couple[1]
 
-        # Create a point equidistant from a and b but not on the segment [AB]
-        distance_from_segment_middle = 2 * np.random.rand() * np.linalg.norm(a - b) + np.linalg.norm(a - b) * 0.1 # Distance in [0.1*AB, 2*AB[
-        m = a + (b-a) / 2 + normal_vector(b - a) * distance_from_segment_middle # Chasles Relation
+            trajectory = [a]
 
-        alpha_values = np.linspace(0.0, 1.0, num_intermediate_samples//2 + 2)[1:-1]
-        for alpha in alpha_values:
-            vector_from_a = (m-a) * alpha
-            intermediate_point = a + vector_from_a
-            trajectory_points.extend(intermediate_point.tolist())
+            # Create a point equidistant from a and b but not on the segment [AB]
+            distance_from_segment_middle = 2 * torch.rand(1, device=a.device) * torch.linalg.norm(a - b) + torch.linalg.norm(a - b) * 0.1 # Distance in [0.1*AB, 2*AB[
+            m = a + (b-a) / 2 + normal_vector(b - a) * distance_from_segment_middle # Chasles Relation
 
-        trajectory_points.extend(m.tolist())
+            alpha_values = torch.linspace(0.0, 1.0, num_intermediate_samples//2 + 2)[1:-1]
+            for alpha in alpha_values:
+                vector_from_a = (m-a) * alpha
+                intermediate_point = a + vector_from_a
+                trajectory.append(intermediate_point)
 
-        for alpha in alpha_values:
-            vector_to_b = (b-m) * alpha
-            intermediate_point = m + vector_to_b
-            trajectory_points.extend(intermediate_point.tolist())
+            trajectory.append(m)
 
-        trajectory_points.extend(b.tolist())
-        trajectories_points.append(trajectory_points)
+            for alpha in alpha_values:
+                vector_to_b = (b-m) * alpha
+                intermediate_point = m + vector_to_b
+                trajectory.append(intermediate_point)
 
-    # Generate header dynamically
-    header = []
-    header.extend([f"A_{i}" for i in range(dimensions)])
-    for i in range(num_intermediate_samples):
-        header.extend([f"P{i}_{j}" for j in range(dimensions)])
-    header.extend([f"B_{i}" for i in range(dimensions)])
+            trajectory.append(b)
+            assert len(trajectory) == num_intermediate_samples + 2
+            trajectories.append(torch.stack(trajectory))
 
-    # Save to CSV
-    with open(filename, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-        for trajectory in trajectories_points:
-            writer.writerow(trajectory)
+        # Stack all trajectories into a single tensor (shape: [n_trajectories, num_intermediate_samples + 2, *dimensions])
+        trajectories_tensor = torch.stack(trajectories)
 
-    return trajectories_points
+        # Save as PyTorch tensor
+        filename = f"{dirname}/{embedding}_fpc3_trajectories.pt"
+        torch.save(trajectories_tensor, filename)
 
-def create_linear_intermediate_points(couples, num_intermediate_samples, filename, dimensions=2):
-    trajectories_points = []
-    for couple in couples:
-        a = np.array(couple[:dimensions])
-        b = np.array(couple[dimensions:2*dimensions])
-        trajectory_points = []
-        trajectory_points.extend(a.tolist())
-        # Create intermediate points on the line segment
-        for i in range(1, num_intermediate_samples+1):
-            alpha = i / (num_intermediate_samples+1)
-            intermediate_point = a + alpha * (b - a)
-            trajectory_points.extend(intermediate_point.tolist())
+def create_linear_intermediate_points(num_intermediate_samples, dirname):
+
+    for embedding in tqdm(embeddings.keys(), desc="Processing embeddings"):
+        # Load couples as torch tensor
+        couples = torch.load(f"{dirname}/{embedding}_couples.pt")
+
+        trajectories = []
+        for couple in tqdm(couples, desc=f"Processing couples for embedding {embedding}"):
+            a, b = couple[0], couple[1]
+
+            trajectory = [a]
             
-        trajectory_points.extend(b.tolist())
+            # Create intermediate points on the line segment
+            for i in range(1, num_intermediate_samples+1):
+                alpha = i / (num_intermediate_samples+1)
+                intermediate_point = a + alpha * (b - a)
+                trajectory.append(intermediate_point)
+                
+            trajectory.append(b)
+            assert len(trajectory) == num_intermediate_samples + 2
+            trajectories.append(torch.stack(trajectory))
+
+        # Stack all trajectories into a single tensor (shape: [n_trajectories, num_intermediate_samples + 2, *dimensions])
+        trajectories_tensor = torch.stack(trajectories)
+
+        # Save as PyTorch tensor
+        filename = f"{dirname}/{embedding}_linear_trajectories.pt"
+        torch.save(trajectories_tensor, filename)
+
+def create_random_intermediate_points(num_intermediate_samples, dirname):
+    for embedding in tqdm(embeddings.keys(), desc="Processing embeddings"):
+        # Load couples as torch tensor
+        couples = torch.load(f"{dirname}/{embedding}_couples.pt")
         
-        trajectories_points.append(trajectory_points)
+        trajectories = []
+        for couple in tqdm(couples, desc=f"Processing couples for embedding {embedding}"):
+            a, b = couple[0], couple[1]
 
-    # Save to CSV
-    with open(filename, 'w', newline='') as f:
-        writer = csv.writer(f)
-        header = [
-            f"A_{i}" for i in range(dimensions)
-        ]
-        header.extend([
-            f"P{i}_{j}" for i in range(num_intermediate_samples) for j in range(dimensions)
-        ])
-        header.extend([
-            f"B_{i}" for i in range(dimensions)
-        ])
-        writer.writerow(header)
-        for trajectory in trajectories_points:
-            writer.writerow(trajectory)
-    
-    return trajectories_points
+            trajectory = [a]
 
-def create_random_intermediate_points(couples, num_intermediate_samples, filename, dimensions=2):
-    trajectories_points = []
-    for couple in couples:
-        a = np.array(couple[:dimensions])
-        b = np.array(couple[dimensions:2*dimensions])
-        trajectory_points = []
-        trajectory_points.extend(a.tolist())
-        # Create random intermediate points in the whole space
-        for _ in range(num_intermediate_samples):
-            random_point = np.random.rand(dimensions) * 10  # Random point in the space
-            trajectory_points.extend(random_point.tolist())
+            # Create random intermediate points in the whole space
+            for _ in range(num_intermediate_samples):
+                random_point = torch.randn_like(a) * 10  # Random point in the space
+                trajectory.append(random_point)
             
-        trajectory_points.extend(b.tolist())
-        
-        trajectories_points.append(trajectory_points)
+            trajectory.append(b)
+            trajectories.append(torch.stack(trajectory))
 
-    # Save to CSV
-    with open(filename, 'w', newline='') as f:
-        writer = csv.writer(f)
-        header = [
-            f"A_{i}" for i in range(dimensions)
-        ]
-        header.extend([
-            f"P{i}_{j}" for i in range(num_intermediate_samples) for j in range(dimensions)
-        ])
-        header.extend([
-            f"B_{i}" for i in range(dimensions)
-        ])
-        writer.writerow(header)
-        for trajectory in trajectories_points:
-            writer.writerow(trajectory)
-    
-    return trajectories_points
+        # Stack all trajectories into a single tensor (shape: [n_trajectories, num_intermediate_samples + 2, *dimensions])
+        trajectories_tensor = torch.stack(trajectories)
+
+        # Save as PyTorch tensor
+        filename = f"{dirname}/{embedding}_random_trajectories.pt"
+        torch.save(trajectories_tensor, filename)
 
 # Make a table of the mean result of each metric
 def make_table():

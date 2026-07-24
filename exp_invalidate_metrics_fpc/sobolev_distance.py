@@ -1,8 +1,9 @@
 import csv
-import re
 import torch  # PyTorch for tensor operations
 import numpy as np  # Library for numerical operations
 from tqdm import tqdm
+
+from exp_functions import embeddings
 
 def sobolev_distance(k: int, p: int, f, g, alpha_values):
     """
@@ -11,20 +12,20 @@ def sobolev_distance(k: int, p: int, f, g, alpha_values):
     Args:
         k (int): Order of the Sobolev space.
         p (int): Lp norm.
-        f (list[torch.Tensor]): First function as list of embeddings.
-        g (list[torch.Tensor]): Second function as list of embeddings.
-        alpha_values (list[float]): List of alpha values for interpolation.
+        f (torch.Tensor): First function as list of embeddings.
+        g (torch.Tensor): Second function as list of embeddings.
+        alpha_values (torch.Tensor): List of alpha values for interpolation.
 
     Returns:
         float: The Sobolev distance (k=1, p=2) between the embeddings.
     """
-    assert len(f) == len(g) == len(alpha_values), f"Length mismatch: {len(f)}, {len(g)}, {len(alpha_values)}"
+    assert f.shape == g.shape, f"Shape mismatch: {f.shape}, {g.shape}"
     assert k in [0, 1], f"Unsupported Sobolev space order: {k}"
     
     terms_to_sum = []
 
     # First term
-    k0 = torch.linalg.norm(torch.stack(f) - torch.stack(g), ord=p)
+    k0 = torch.linalg.norm(f - g, ord=p)
     terms_to_sum.append(k0)
 
     if k > 0:
@@ -51,32 +52,21 @@ def sobolev_distance(k: int, p: int, f, g, alpha_values):
 
     return dist.item()
 
-def compute_sobolev_distances(points_csv: str, metrics_folder: str, dimensions: int = 2):
-
-    trajectories = []
-    with open(points_csv, 'r') as f:
-        reader = csv.reader(f)
-        next(reader)  # Skip the header row
-
-        for row in reader:
-            # Convert each value to float and group into tuples of 5 parameters
-            points = [
-                list(map(float, row[i:i+dimensions]))
-                for i in range(0, len(row), dimensions)
-            ]
-            trajectories.append(points)
+def compute_sobolev_distances(dirname: str, metrics_folder: str, morph_type: str):
+    # Load trajectories tensor
+    trajectories_tensor_path = f"{dirname}/mert_{morph_type}_trajectories.pt"
+    trajectories_tensor = torch.load(trajectories_tensor_path)
     
     for k, p in [(1, 2), (0, 2)]:
         sobolev_dists = []
-        for trajectory in tqdm(trajectories, desc=f"Computing Sobolev distance ({k}, {p}) on morphs", total=len(trajectories)):
-            trajectory_tensor = [torch.tensor(point) for point in trajectory]
-
-            alpha_values = torch.from_numpy(np.linspace(0, 1, len(trajectory_tensor)))
+        for trajectory in tqdm(trajectories_tensor, desc=f"Computing Sobolev distance ({k}, {p}) on morphs", total=len(trajectories_tensor)):
+            
+            alpha_values = torch.linspace(0, 1, len(trajectory))
 
             # Interpolation between vectors
-            ideal_morphing = [torch.lerp(trajectory_tensor[0], trajectory_tensor[-1], alpha_value) for alpha_value in alpha_values]
+            ideal_morphing = torch.stack([torch.lerp(trajectory[0], trajectory[-1], alpha_value) for alpha_value in alpha_values])
 
-            sobolev_value = sobolev_distance(k, p, trajectory_tensor, ideal_morphing, alpha_values = alpha_values)
+            sobolev_value = sobolev_distance(k, p, trajectory, ideal_morphing, alpha_values = alpha_values)
             sobolev_dists.append(sobolev_value)
 
         # Write sobolev values in a csv file

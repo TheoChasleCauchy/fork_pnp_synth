@@ -1,17 +1,19 @@
 from scipy.stats import pearsonr
 import numpy as np
-import re
 import csv
 
+import torch
 from tqdm import tqdm
+
+from exp_functions import embeddings
 
 def smoothness_clap_corr(morphed_audios_embeddings, alpha_values):
     """
     Compute the correlation between smoothness_values of CLAP embeddings of morphed audio files from their sources and the morphing parameter alpha.
 
     Args:
-        morphed_audios_embeddings (list[np.ndarray]): List of morphed audio embeddings. The source is the first embedding of the list.
-        alpha_values (list[float]): List of alpha values for interpolation.
+        morphed_audios_embeddings (tensor): List of morphed audio embeddings. The source is the first embedding of the list.
+        alpha_values (np.ndarray): List of alpha values for interpolation.
 
     Returns:
         pearson_corr (float): The Pearson correlation coefficient.
@@ -21,31 +23,22 @@ def smoothness_clap_corr(morphed_audios_embeddings, alpha_values):
     
     smoothness_values = []
     for i in range(len(morphed_audios_embeddings)):
-        dist = np.linalg.norm(np.array(morphed_audios_embeddings[i]) - np.array(morphed_audios_embeddings[0])) # Assuming the source is the first embedding of the list
-        smoothness_values.append(dist)
+        assert morphed_audios_embeddings[i].shape == torch.Size(embeddings["clap"]), f"Expected shape {embeddings['clap']}, got {morphed_audios_embeddings[i].shape}"
+        dist = torch.linalg.norm(morphed_audios_embeddings[i] - morphed_audios_embeddings[0]) # Assuming the source is the first embedding of the list
+        smoothness_values.append(dist.item())
 
     pearson_corr, p = pearsonr(alpha_values, smoothness_values)
 
     return pearson_corr, p
 
 
-def compute_smoothness_clap_corr(points_csv: str, metric_csv: str, dimensions: int = 2):
-    
-    trajectories = []
-    with open(points_csv, 'r') as f:
-        reader = csv.reader(f)
-        next(reader)  # Skip the header row
+def compute_smoothness_clap_corr(dirname: str, metric_csv: str, morph_type: str):
+    # Load trajectories tensor
+    trajectories_tensor_path = f"{dirname}/clap_{morph_type}_trajectories.pt"
+    trajectories_tensor = torch.load(trajectories_tensor_path)
 
-        for row in reader:
-            # Convert each value to float and group into tuples of 5 parameters
-            points = [
-                list(map(float, row[i:i+dimensions]))
-                for i in range(0, len(row), dimensions)
-            ]
-            trajectories.append(points)
-    
     pearson_corrs = []
-    for trajectory in tqdm(trajectories, desc=f"Computing smoothness-CLAP correlation on morphs", total=len(trajectories)):
+    for trajectory in tqdm(trajectories_tensor, desc=f"Computing smoothness-CLAP correlation on morphs", total=len(trajectories_tensor)):
         # Stack the tuples in the list
         alpha_values = np.linspace(0, 1, len(trajectory))
         pearson_cor, p = smoothness_clap_corr(trajectory, alpha_values)

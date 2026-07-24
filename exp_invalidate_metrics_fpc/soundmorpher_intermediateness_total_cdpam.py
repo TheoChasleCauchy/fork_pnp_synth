@@ -1,34 +1,27 @@
-import re
+import torch
 import numpy as np
 import csv
 from tqdm import tqdm
 
-def process_csv(input_path: str, dimensions: int = 2):
-    
-    trajectories = []
-    with open(input_path, 'r') as f:
-        reader = csv.reader(f)
-        next(reader)  # Skip the header row
+from exp_functions import embeddings
 
-        for row in reader:
-            # Convert each value to float and group into tuples of 5 parameters
-            points = [
-                list(map(float, row[i:i+dimensions]))
-                for i in range(0, len(row), dimensions)
-            ]
-            trajectories.append(points)
+def process_csv(input_path: str):
+    # Load trajectories tensor
+    trajectories_tensor = torch.load(input_path)
+    assert trajectories_tensor[0][0].shape == torch.Size(embeddings["cdpam"]), f"Expected shape {embeddings['cdpam']}, got {trajectories_tensor[0][0].shape}"
 
     # Compute intermediateness value 
     intermediateness_values = []
-    for trajectory in tqdm(trajectories, desc="Computing Intermediateness", total=len(trajectories)):
-        intermediateness_value = sum([np.linalg.norm(np.array(trajectory[i+1]) - np.array(trajectory[i])) for i in range(len(trajectory)-1)])
-        intermediateness_values.append(intermediateness_value)
+    for trajectory in tqdm(trajectories_tensor, desc="Computing Intermediateness", total=len(trajectories_tensor)):
+        intermediateness_value = torch.sum(torch.stack([torch.linalg.norm(trajectory[i+1] - trajectory[i]) for i in range(len(trajectory)-1)]))
+        intermediateness_values.append(intermediateness_value.item())
 
     return intermediateness_values
 
-def compute_intermediateness_total_cdpam(points_csv: str, metric_csv: str, dimensions: int = 2):
-
-    intermediateness_values = process_csv(points_csv, dimensions)
+def compute_intermediateness_total_cdpam(dirname: str, metric_csv: str, morph_type: str):
+    # Load trajectories tensor
+    trajectories_tensor_path = f"{dirname}/cdpam_{morph_type}_trajectories.pt"
+    intermediateness_values = process_csv(trajectories_tensor_path)
 
     # Write intermediateness values in a csv file
     with open(metric_csv, "w", newline="") as csvfile:
