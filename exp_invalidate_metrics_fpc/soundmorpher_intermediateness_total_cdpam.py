@@ -4,6 +4,10 @@ import csv
 from tqdm import tqdm
 
 from exp_functions import embeddings
+from cdpam import CDPAM
+import torch.nn.functional as F
+
+model = CDPAM(dev='cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def process_csv(input_path: str):
     # Load trajectories tensor
@@ -13,7 +17,17 @@ def process_csv(input_path: str):
     # Compute intermediateness value 
     intermediateness_values = []
     for trajectory in tqdm(trajectories_tensor, desc="Computing Intermediateness", total=len(trajectories_tensor)):
-        intermediateness_value = torch.sum(torch.stack([torch.linalg.norm(trajectory[i+1] - trajectory[i]) for i in range(len(trajectory)-1)]))
+        CDPAM_values = []
+        for i in range(len(trajectory)-1):
+            a1 = trajectory[i].to(model.device)
+            a1 = F.normalize(a1, dim=1)
+            a2 = trajectory[i+1].to(model.device)
+            a2 = F.normalize(a2, dim=1)
+            CDPAM_value = model.model.model_dist.forward(a1,a2)
+            CDPAM_values.append(CDPAM_value)
+
+        # intermediateness_value = torch.sum(torch.stack([torch.linalg.norm(trajectory[i+1] - trajectory[i]) for i in range(len(trajectory)-1)]))
+        intermediateness_value = torch.stack(CDPAM_values).sum()
         intermediateness_values.append(intermediateness_value.item())
 
     return intermediateness_values

@@ -44,7 +44,7 @@ def create_fpc1_intermediate_points(num_intermediate_samples, dirname):
             # Generate intermediate points between A and B
             for i in range(1, num_intermediate_samples + 1):
                 # Random direction in the same shape as A
-                random_direction = torch.randn_like(a)
+                random_direction = torch.rand_like(a)
                 random_direction = random_direction / torch.linalg.norm(random_direction)  # Normalize
 
                 # Distance from A proportional to progress
@@ -97,7 +97,7 @@ def create_fpc2_intermediate_points(num_intermediate_samples, dirname):
 def create_fpc3_intermediate_points(num_intermediate_samples, dirname):
     def normal_vector(v):
         # Generate a random tensor of the same shape as v
-        r = torch.randn_like(v)
+        r = torch.rand_like(v)
 
         # Flatten for dot product calculations
         r_flat = r.reshape(-1)
@@ -192,7 +192,7 @@ def create_random_intermediate_points(num_intermediate_samples, dirname):
 
             # Create random intermediate points in the whole space
             for _ in range(num_intermediate_samples):
-                random_point = torch.randn_like(a) * 10  # Random point in the space
+                random_point = torch.rand_like(a) * 10  # Random point in the space
                 trajectory.append(random_point)
             
             trajectory.append(b)

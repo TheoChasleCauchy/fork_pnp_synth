@@ -64,11 +64,11 @@ os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "fpc1"
 points_dir = f"exp_invalidate_metrics_fpc/generated/points"
 compute_mix2morph_lcs(points_dir, f"{metrics_folder}/mix2morph_lcs_values.csv", morph_type)
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
 compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/soundmorpher_correspondence_mfccs_values.csv", morph_type)
-# compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
+compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
 
 # Baseline linéaire
 print("Creating linear intermediate points...")
@@ -85,11 +85,11 @@ metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/linear"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "linear"
 compute_mix2morph_lcs(points_dir, f"{metrics_folder}/mix2morph_lcs_values.csv", morph_type)
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
 compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/soundmorpher_correspondence_mfccs_values.csv", morph_type)
-# compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
+compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
 
 # Baseline aléatoire
 print("Creating random intermediate points...")
@@ -106,11 +106,11 @@ metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/random"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "random"
 compute_mix2morph_lcs(points_dir, f"{metrics_folder}/mix2morph_lcs_values.csv", morph_type)
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
 compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/soundmorpher_correspondence_mfccs_values.csv", morph_type)
-# compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
+compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
 
 print("Creating FPC 2 intermediate points...")
 # FPC 2
@@ -127,11 +127,11 @@ metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc2"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "fpc2"
 compute_mix2morph_lcs(points_dir, f"{metrics_folder}/mix2morph_lcs_values.csv", morph_type)
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
 compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/soundmorpher_correspondence_mfccs_values.csv", morph_type)
-# compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
+compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
 
 print("Creating FPC 3 intermediate points...")
 # FPC 3
@@ -148,11 +148,11 @@ metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc3"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "fpc3"
 compute_mix2morph_lcs(points_dir, f"{metrics_folder}/mix2morph_lcs_values.csv", morph_type)
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
 compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/soundmorpher_correspondence_mfccs_values.csv", morph_type)
-# compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
+compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
 
 # 6. Make a table
 make_table()

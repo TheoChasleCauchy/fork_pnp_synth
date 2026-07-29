@@ -4,6 +4,10 @@ import csv
 from tqdm import tqdm
 
 from exp_functions import embeddings
+from cdpam import CDPAM
+import torch.nn.functional as F
+
+model = CDPAM(dev='cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def process_csv(input_path: str):
     # Load trajectories tensor
@@ -13,8 +17,18 @@ def process_csv(input_path: str):
     # Compute smoothness value 
     smoothness_values = []
     for trajectory in tqdm(trajectories_tensor, desc="Computing Smoothness", total=len(trajectories_tensor)):
-        dists = [torch.linalg.norm(trajectory[i+1] - trajectory[i]) for i in range(len(trajectory)-1)]
-        smoothness_mean, smoothness_std = torch.mean(torch.stack(dists)), torch.std(torch.stack(dists))
+        CDPAM_values = []
+        for i in range(len(trajectory)-1):
+            a1 = trajectory[i].to(model.device)
+            a1 = F.normalize(a1, dim=1)
+            a2 = trajectory[i+1].to(model.device)
+            a2 = F.normalize(a2, dim=1)
+            CDPAM_value = model.model.model_dist.forward(a1,a2)
+            CDPAM_values.append(CDPAM_value)
+
+        # dists = [torch.linalg.norm(trajectory[i+1] - trajectory[i]) for i in range(len(trajectory)-1)]
+        # smoothness_mean, smoothness_std = torch.mean(torch.stack(dists)), torch.std(torch.stack(dists))
+        smoothness_mean, smoothness_std = torch.mean(torch.stack(CDPAM_values)), torch.std(torch.stack(CDPAM_values))
         smoothness_values.append((smoothness_mean.item(), smoothness_std.item()))
 
     return smoothness_values

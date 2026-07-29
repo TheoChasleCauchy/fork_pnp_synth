@@ -17,6 +17,10 @@ def correspondence_mfccs(mfcc_source_point: torch.Tensor, mfcc_morphed_point: to
     Returns:
         metric (float): The computed metric value.
     """
+    # Flatten the MFCC matrices to 1D arrays
+    mfcc_source_point = mfcc_source_point.flatten()
+    mfcc_morphed_point = mfcc_morphed_point.flatten()
+    mfcc_target_point = mfcc_target_point.flatten()
 
     # Compute L2 norms
     norm_i_0 = torch.linalg.norm(mfcc_morphed_point - mfcc_source_point)
@@ -24,10 +28,9 @@ def correspondence_mfccs(mfcc_source_point: torch.Tensor, mfcc_morphed_point: to
 
     # Avoid division by zero
     denominator = norm_i_0 + norm_i_last
-    if denominator == 0:
-        ratio = 0.0
-    else:
-        ratio = norm_i_0 / denominator
+    assert denominator != 0.0
+
+    ratio = norm_i_0 / denominator
 
     # Compute the coefficient
     coeff = torch.abs(ratio - 0.5)
