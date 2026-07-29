@@ -6,7 +6,6 @@ import torch
 from sobolev_distance import compute_sobolev_distances
 from exp_functions import sample_couples_specific_dimensions_space, create_fpc1_intermediate_points, create_fpc2_intermediate_points, create_fpc3_intermediate_points, create_linear_intermediate_points, create_random_intermediate_points, make_table
 from soundmorpher_correspondence_mfccs import compute_soundmorpher_correspondence_mfccs
-from mix2morph_lcs import compute_mix2morph_lcs
 from soundmorpher_smoothness_cdpam import compute_smoothness_mean_cdpam 
 from soundmorpher_intermediateness_total_cdpam import compute_intermediateness_total_cdpam
 from morphfader_smoothness_clap_corr import compute_smoothness_clap_corr
@@ -63,7 +62,6 @@ metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc1"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "fpc1"
 points_dir = f"exp_invalidate_metrics_fpc/generated/points"
-compute_mix2morph_lcs(points_dir, f"{metrics_folder}/mix2morph_lcs_values.csv", morph_type)
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
 compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
 compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
@@ -84,7 +82,6 @@ create_linear_intermediate_points(num_intermediate_samples, dir)
 metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/linear"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "linear"
-compute_mix2morph_lcs(points_dir, f"{metrics_folder}/mix2morph_lcs_values.csv", morph_type)
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
 compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
 compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
@@ -105,7 +102,6 @@ create_random_intermediate_points(num_intermediate_samples, dir)
 metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/random"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "random"
-compute_mix2morph_lcs(points_dir, f"{metrics_folder}/mix2morph_lcs_values.csv", morph_type)
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
 compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
 compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
@@ -126,7 +122,6 @@ create_fpc2_intermediate_points(num_intermediate_samples, dir)
 metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc2"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "fpc2"
-compute_mix2morph_lcs(points_dir, f"{metrics_folder}/mix2morph_lcs_values.csv", morph_type)
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
 compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
 compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)
@@ -147,7 +142,6 @@ create_fpc3_intermediate_points(num_intermediate_samples, dir)
 metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc3"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "fpc3"
-compute_mix2morph_lcs(points_dir, f"{metrics_folder}/mix2morph_lcs_values.csv", morph_type)
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/intermediateness_total_cdpam_values.csv", morph_type)
 compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/smoothness_mean_cdpam_values.csv", morph_type)
 compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/smoothness_clap_corr_values.csv", morph_type)

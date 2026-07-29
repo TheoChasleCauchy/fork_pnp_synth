@@ -211,16 +211,6 @@ def make_table():
     
     def get_metrics_values(results_dir):
         metrics_values = {}
-
-        # Get lcs metric value
-        lcs_csv_path = os.path.join(results_dir, "mix2morph_lcs_values.csv")
-        with open(lcs_csv_path, 'r') as f:
-            reader = list(csv.reader(f))
-            row = reader[-1] # Get the last row where the mean value is
-            value_string = row[1]
-            mean_std_lcs = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
-            mean_lcs, std_lcs = map(float, mean_std_lcs)
-            metrics_values["LCS"] = (mean_lcs, std_lcs)
         
         # Get Smoothness Clap metric value
         clap_csv_path = os.path.join(results_dir, "smoothness_clap_corr_values.csv")
@@ -306,14 +296,6 @@ def make_table():
         writer.writerow(header)
 
         # Write rows: models as rows, (k, p) as columns, mean+-std as values
-        row = [
-            "LCS",
-            f"{linear_metrics_values['LCS'][0]:.2f} +- {linear_metrics_values['LCS'][1]:.2f}",
-            f"{random_metrics_values['LCS'][0]:.2f} +- {random_metrics_values['LCS'][1]:.2f}",
-            f"{fpc1_metrics_values['LCS'][0]:.2f} +- {fpc1_metrics_values['LCS'][1]:.2f}",
-            f"{fpc2_metrics_values['LCS'][0]:.2f} +- {fpc2_metrics_values['LCS'][1]:.2f}",
-            f"{fpc3_metrics_values['LCS'][0]:.2f} +- {fpc3_metrics_values['LCS'][1]:.2f}",
-        ]
         writer.writerow(row)
         row = [
             "Correspondence",
