@@ -4,11 +4,10 @@ from tqdm import tqdm
 import csv
 
 embeddings = {
-    "dac": [72, 255], # 72, 255 # For a 5 second audio at 44100Hz
-    "clap": [512],
-    "mert": [768],
+    "clap": [1, 512],
+    "mert": [1, 768],
     "cdpam": [1, 512],
-    "mfcc": [20, 256] # 20, 256 # For a 5 second audio at 44100Hz
+    "mfcc": [20, 256] # For a 5 second audio at 44100Hz
 }
 
 def sample_couples_specific_dimensions_space(n_couples, dirname):
@@ -213,14 +212,23 @@ def make_table():
         metrics_values = {}
         
         # Get Smoothness Clap metric value
-        clap_csv_path = os.path.join(results_dir, "smoothness_clap_corr_values.csv")
-        with open(clap_csv_path, 'r') as f:
+        clap_smoothness_clap_csv_path = os.path.join(results_dir, "clap_smoothness_clap_corr_values.csv")
+        with open(clap_smoothness_clap_csv_path, 'r') as f:
             reader = list(csv.reader(f))
             row = reader[-1] # Get the last row where the mean value is
             value_string = row[1]
             mean_std_clap = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
             mean_smoothness_clap_corr, std_smoothness_clap_corr = map(float, mean_std_clap)
-            metrics_values["Smoothness CLAP"] = (mean_smoothness_clap_corr, std_smoothness_clap_corr)
+            metrics_values["CLAP Smoothness"] = (mean_smoothness_clap_corr, std_smoothness_clap_corr)
+
+        mert_smoothness_clap_csv_path = os.path.join(results_dir, "mert_smoothness_clap_corr_values.csv")
+        with open(mert_smoothness_clap_csv_path, 'r') as f:
+            reader = list(csv.reader(f))
+            row = reader[-1] # Get the last row where the mean value is
+            value_string = row[1]
+            mean_std_clap = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
+            mean_smoothness_clap_corr, std_smoothness_clap_corr = map(float, mean_std_clap)
+            metrics_values["MERT Smoothness CLAP"] = (mean_smoothness_clap_corr, std_smoothness_clap_corr)
         
         # Get Sobolev k=0, p=2 value
         sobolev_k0_p2_csv_path = os.path.join(results_dir, "sobolev_dists_0_2.csv")
@@ -243,34 +251,61 @@ def make_table():
             metrics_values["Sobolev (1, 2)"] = (mean_sobolev_k1_p2, std_sobolev_k1_p2)
         
         # Get Correspondence value
-        correspondence_csv_path = os.path.join(results_dir, "soundmorpher_correspondence_mfccs_values.csv")
-        with open(correspondence_csv_path, 'r') as f:
+        mfcc_correspondence_csv_path = os.path.join(results_dir, "mfcc_soundmorpher_correspondence_mfccs_values.csv")
+        with open(mfcc_correspondence_csv_path, 'r') as f:
             reader = list(csv.reader(f))
             row = reader[-1] # Get the last row where the mean value is
             value_string = row[1]
             mean_std_correspondence = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
             mean_correspondence, std_correspondence = map(float, mean_std_correspondence)
-            metrics_values["Correspondence"] = (mean_correspondence, std_correspondence)
+            metrics_values["MFCC Correspondence"] = (mean_correspondence, std_correspondence)
+
+        mert_correspondence_csv_path = os.path.join(results_dir, "mert_soundmorpher_correspondence_mfccs_values.csv")
+        with open(mert_correspondence_csv_path, 'r') as f:
+            reader = list(csv.reader(f))
+            row = reader[-1] # Get the last row where the mean value is
+            value_string = row[1]
+            mean_std_correspondence = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
+            mean_correspondence, std_correspondence = map(float, mean_std_correspondence)
+            metrics_values["MERT Correspondence"] = (mean_correspondence, std_correspondence)
         
         # Get Intermediateness value
-        intermediateness_csv_path = os.path.join(results_dir, "intermediateness_total_cdpam_values.csv")
-        with open(intermediateness_csv_path, 'r') as f:
+        cdpam_intermediateness_csv_path = os.path.join(results_dir, "cdpam_intermediateness_total_cdpam_values.csv")
+        with open(cdpam_intermediateness_csv_path, 'r') as f:
             reader = list(csv.reader(f))
             row = reader[-1] # Get the last row where the mean value is
             value_string = row[1]
             mean_std_intermediateness = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
             mean_intermediateness, std_intermediateness = map(float, mean_std_intermediateness)
-            metrics_values["Intermediateness"] = (mean_intermediateness, std_intermediateness)
-        
+            metrics_values["CDPAM Intermediateness"] = (mean_intermediateness, std_intermediateness)
+
+        mert_intermediateness_csv_path = os.path.join(results_dir, "mert_intermediateness_total_cdpam_values.csv")
+        with open(mert_intermediateness_csv_path, 'r') as f:
+            reader = list(csv.reader(f))
+            row = reader[-1] # Get the last row where the mean value is
+            value_string = row[1]
+            mean_std_intermediateness = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
+            mean_intermediateness, std_intermediateness = map(float, mean_std_intermediateness)
+            metrics_values["MERT Intermediateness"] = (mean_intermediateness, std_intermediateness)
+
         # Get Smoothness CDPAM value
-        smoothness_cdpam_csv_path = os.path.join(results_dir, "smoothness_mean_cdpam_values.csv")
-        with open(smoothness_cdpam_csv_path, 'r') as f:
+        cdpam_smoothness_cdpam_csv_path = os.path.join(results_dir, "cdpam_smoothness_mean_cdpam_values.csv")
+        with open(cdpam_smoothness_cdpam_csv_path, 'r') as f:
             reader = list(csv.reader(f))
             row = reader[-1] # Get the last row where the mean value is
             value_string = row[1]
             mean_std_smoothness_cdpam = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
             mean_smoothness_cdpam, std_smoothness_cdpam = map(float, mean_std_smoothness_cdpam)
-            metrics_values["Smoothness CDPAM"] = (mean_smoothness_cdpam, std_smoothness_cdpam)
+            metrics_values["CDPAM Smoothness CDPAM"] = (mean_smoothness_cdpam, std_smoothness_cdpam)
+
+        mert_smoothness_cdpam_csv_path = os.path.join(results_dir, "mert_smoothness_mean_cdpam_values.csv")
+        with open(mert_smoothness_cdpam_csv_path, 'r') as f:
+            reader = list(csv.reader(f))
+            row = reader[-1] # Get the last row where the mean value is
+            value_string = row[1]
+            mean_std_smoothness_cdpam = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
+            mean_smoothness_cdpam, std_smoothness_cdpam = map(float, mean_std_smoothness_cdpam)
+            metrics_values["MERT Smoothness CDPAM"] = (mean_smoothness_cdpam, std_smoothness_cdpam)
         
         return metrics_values
         
@@ -292,49 +327,95 @@ def make_table():
         writer = csv.writer(csvfile)
 
         # Write header: metrics as rows
-        header = ["Metric", "Ideal Value", "Random Value", "FPC 1 Value", "FPC 2 Value", "FPC 3 Value"]
+        header = ["Metric", "Encoder", "Ideal Value", "Random Value", "FPC 1 Value", "FPC 2 Value", "FPC 3 Value"]
         writer.writerow(header)
 
         # Write rows: models as rows, (k, p) as columns, mean+-std as values
-        writer.writerow(row)
         row = [
-            "Correspondence",
-            f"{linear_metrics_values['Correspondence'][0]:.2f} +- {linear_metrics_values['Correspondence'][1]:.2f}",
-            f"{random_metrics_values['Correspondence'][0]:.2f} +- {random_metrics_values['Correspondence'][1]:.2f}",
-            f"{fpc1_metrics_values['Correspondence'][0]:.2f} +- {fpc1_metrics_values['Correspondence'][1]:.2f}",
-            f"{fpc2_metrics_values['Correspondence'][0]:.2f} +- {fpc2_metrics_values['Correspondence'][1]:.2f}",
-            f"{fpc3_metrics_values['Correspondence'][0]:.2f} +- {fpc3_metrics_values['Correspondence'][1]:.2f}"
+            "Correspondence", 
+            "MFCC",
+            f"{linear_metrics_values['MFCC Correspondence'][0]:.2f} +- {linear_metrics_values['MFCC Correspondence'][1]:.2f}",
+            f"{random_metrics_values['MFCC Correspondence'][0]:.2f} +- {random_metrics_values['MFCC Correspondence'][1]:.2f}",
+            f"{fpc1_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc1_metrics_values['MFCC Correspondence'][1]:.2f}",
+            f"{fpc2_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc2_metrics_values['MFCC Correspondence'][1]:.2f}",
+            f"{fpc3_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc3_metrics_values['MFCC Correspondence'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
             "Smoothness CLAP",
-            f"{linear_metrics_values['Smoothness CLAP'][0]:.2f} +- {linear_metrics_values['Smoothness CLAP'][1]:.2f}",
-            f"{random_metrics_values['Smoothness CLAP'][0]:.2f} +- {random_metrics_values['Smoothness CLAP'][1]:.2f}",
-            f"{fpc1_metrics_values['Smoothness CLAP'][0]:.2f} +- {fpc1_metrics_values['Smoothness CLAP'][1]:.2f}",
-            f"{fpc2_metrics_values['Smoothness CLAP'][0]:.2f} +- {fpc2_metrics_values['Smoothness CLAP'][1]:.2f}",
-            f"{fpc3_metrics_values['Smoothness CLAP'][0]:.2f} +- {fpc3_metrics_values['Smoothness CLAP'][1]:.2f}"
+            "L-CLAP audio",
+            f"{linear_metrics_values['CLAP Smoothness'][0]:.2f} +- {linear_metrics_values['CLAP Smoothness'][1]:.2f}",
+            f"{random_metrics_values['CLAP Smoothness'][0]:.2f} +- {random_metrics_values['CLAP Smoothness'][1]:.2f}",
+            f"{fpc1_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc1_metrics_values['CLAP Smoothness'][1]:.2f}",
+            f"{fpc2_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc2_metrics_values['CLAP Smoothness'][1]:.2f}",
+            f"{fpc3_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc3_metrics_values['CLAP Smoothness'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
             "Intermediateness",
-            f"{linear_metrics_values['Intermediateness'][0]:.2f} +- {linear_metrics_values['Intermediateness'][1]:.2f}",
-            f"{random_metrics_values['Intermediateness'][0]:.2f} +- {random_metrics_values['Intermediateness'][1]:.2f}",
-            f"{fpc1_metrics_values['Intermediateness'][0]:.2f} +- {fpc1_metrics_values['Intermediateness'][1]:.2f}",
-            f"{fpc2_metrics_values['Intermediateness'][0]:.2f} +- {fpc2_metrics_values['Intermediateness'][1]:.2f}",
-            f"{fpc3_metrics_values['Intermediateness'][0]:.2f} +- {fpc3_metrics_values['Intermediateness'][1]:.2f}"
+            "CDPAM",
+            f"{linear_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {linear_metrics_values['CDPAM Intermediateness'][1]:.2f}",
+            f"{random_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {random_metrics_values['CDPAM Intermediateness'][1]:.2f}",
+            f"{fpc1_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc1_metrics_values['CDPAM Intermediateness'][1]:.2f}",
+            f"{fpc2_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc2_metrics_values['CDPAM Intermediateness'][1]:.2f}",
+            f"{fpc3_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc3_metrics_values['CDPAM Intermediateness'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
             "Smoothness CDPAM",
-            f"{linear_metrics_values['Smoothness CDPAM'][0]:.2f} +- {linear_metrics_values['Smoothness CDPAM'][1]:.2f}",
-            f"{random_metrics_values['Smoothness CDPAM'][0]:.2f} +- {random_metrics_values['Smoothness CDPAM'][1]:.2f}",
-            f"{fpc1_metrics_values['Smoothness CDPAM'][0]:.2f} +- {fpc1_metrics_values['Smoothness CDPAM'][1]:.2f}",
-            f"{fpc2_metrics_values['Smoothness CDPAM'][0]:.2f} +- {fpc2_metrics_values['Smoothness CDPAM'][1]:.2f}",
-            f"{fpc3_metrics_values['Smoothness CDPAM'][0]:.2f} +- {fpc3_metrics_values['Smoothness CDPAM'][1]:.2f}"
+            "CDPAM",
+            f"{linear_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {linear_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
+            f"{random_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {random_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
+            f"{fpc1_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc1_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
+            f"{fpc2_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc2_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
+            f"{fpc3_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc3_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}"
+        ]
+
+        # MERT
+        writer.writerow(row)
+        row = [
+            "Correspondence", 
+            "MERT",
+            f"{linear_metrics_values['MERT Correspondence'][0]:.2f} +- {linear_metrics_values['MERT Correspondence'][1]:.2f}",
+            f"{random_metrics_values['MERT Correspondence'][0]:.2f} +- {random_metrics_values['MERT Correspondence'][1]:.2f}",
+            f"{fpc1_metrics_values['MERT Correspondence'][0]:.2f} +- {fpc1_metrics_values['MERT Correspondence'][1]:.2f}",
+            f"{fpc2_metrics_values['MERT Correspondence'][0]:.2f} +- {fpc2_metrics_values['MERT Correspondence'][1]:.2f}",
+            f"{fpc3_metrics_values['MERT Correspondence'][0]:.2f} +- {fpc3_metrics_values['MERT Correspondence'][1]:.2f}"
+        ]
+        writer.writerow(row)
+        row = [
+            "Smoothness CLAP",
+            "MERT",
+            f"{linear_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {linear_metrics_values['MERT Smoothness CLAP'][1]:.2f}",
+            f"{random_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {random_metrics_values['MERT Smoothness CLAP'][1]:.2f}",
+            f"{fpc1_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {fpc1_metrics_values['MERT Smoothness CLAP'][1]:.2f}",
+            f"{fpc2_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {fpc2_metrics_values['MERT Smoothness CLAP'][1]:.2f}",
+            f"{fpc3_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {fpc3_metrics_values['MERT Smoothness CLAP'][1]:.2f}"
+        ]
+        writer.writerow(row)
+        row = [
+            "Intermediateness",
+            "MERT",
+            f"{linear_metrics_values['MERT Intermediateness'][0]:.2f} +- {linear_metrics_values['MERT Intermediateness'][1]:.2f}",
+            f"{random_metrics_values['MERT Intermediateness'][0]:.2f} +- {random_metrics_values['MERT Intermediateness'][1]:.2f}",
+            f"{fpc1_metrics_values['MERT Intermediateness'][0]:.2f} +- {fpc1_metrics_values['MERT Intermediateness'][1]:.2f}",
+            f"{fpc2_metrics_values['MERT Intermediateness'][0]:.2f} +- {fpc2_metrics_values['MERT Intermediateness'][1]:.2f}",
+            f"{fpc3_metrics_values['MERT Intermediateness'][0]:.2f} +- {fpc3_metrics_values['MERT Intermediateness'][1]:.2f}"
+        ]
+        writer.writerow(row)
+        row = [
+            "Smoothness CDPAM",
+            "MERT",
+            f"{linear_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {linear_metrics_values['MERT Smoothness CDPAM'][1]:.2f}",
+            f"{random_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {random_metrics_values['MERT Smoothness CDPAM'][1]:.2f}",
+            f"{fpc1_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {fpc1_metrics_values['MERT Smoothness CDPAM'][1]:.2f}",
+            f"{fpc2_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {fpc2_metrics_values['MERT Smoothness CDPAM'][1]:.2f}",
+            f"{fpc3_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {fpc3_metrics_values['MERT Smoothness CDPAM'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
             "Sobolev (0, 2)",
+            "MERT",
             f"{linear_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {linear_metrics_values['Sobolev (0, 2)'][1]:.2f}",
             f"{random_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {random_metrics_values['Sobolev (0, 2)'][1]:.2f}",
             f"{fpc1_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {fpc1_metrics_values['Sobolev (0, 2)'][1]:.2f}",
@@ -344,6 +425,7 @@ def make_table():
         writer.writerow(row)
         row = [
             "Sobolev (1, 2)",
+            "MERT",
             f"{linear_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {linear_metrics_values['Sobolev (1, 2)'][1]:.2f}",
             f"{random_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {random_metrics_values['Sobolev (1, 2)'][1]:.2f}",
             f"{fpc1_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpc1_metrics_values['Sobolev (1, 2)'][1]:.2f}",

@@ -21,6 +21,9 @@ def sobolev_distance(k: int, p: int, f, g, alpha_values):
     """
     assert f.shape == g.shape, f"Shape mismatch: {f.shape}, {g.shape}"
     assert k in [0, 1], f"Unsupported Sobolev space order: {k}"
+
+    f = f[:,0,:]
+    g = g[:,0,:]
     
     terms_to_sum = []
 

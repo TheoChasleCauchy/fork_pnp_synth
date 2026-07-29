@@ -37,9 +37,11 @@ def correspondence_mfccs(mfcc_source_point: torch.Tensor, mfcc_morphed_point: to
 
     return coeff.item()
 
-def compute_soundmorpher_correspondence_mfccs(dirname: str, metric_csv: str, morph_type: str):
+def compute_soundmorpher_correspondence_mfccs(dirname: str, metric_csv: str, morph_type: str, embedding: str):
+    assert embedding in ["mfcc", "mert"]
+
     # Load trajectories tensor
-    trajectories_tensor_path = f"{dirname}/mfcc_{morph_type}_trajectories.pt"
+    trajectories_tensor_path = f"{dirname}/{embedding}_{morph_type}_trajectories.pt"
     trajectories_tensor = torch.load(trajectories_tensor_path)
 
     correspondence_values = []
@@ -48,7 +50,7 @@ def compute_soundmorpher_correspondence_mfccs(dirname: str, metric_csv: str, mor
         source = trajectory[0]
         middle = trajectory[len(trajectory)//2]
         target = trajectory[-1]
-        assert source.shape == middle.shape == target.shape == torch.Size(embeddings["mfcc"])
+        assert source.shape == middle.shape == target.shape == torch.Size(embeddings[embedding])
 
         correspondence_value = correspondence_mfccs(source, middle, target)
         correspondence_values.append(correspondence_value)

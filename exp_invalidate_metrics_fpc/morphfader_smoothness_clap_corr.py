@@ -23,7 +23,7 @@ def smoothness_clap_corr(morphed_audios_embeddings, alpha_values):
     
     smoothness_values = []
     for i in range(len(morphed_audios_embeddings)):
-        assert morphed_audios_embeddings[i].shape == torch.Size(embeddings["clap"]), f"Expected shape {embeddings['clap']}, got {morphed_audios_embeddings[i].shape}"
+        assert morphed_audios_embeddings[i].shape == torch.Size(embeddings["clap"]) or  morphed_audios_embeddings[i].shape == torch.Size(embeddings["mert"]), f"Expected shape {embeddings['clap']}, got {morphed_audios_embeddings[i].shape}"
         dist = torch.linalg.norm(morphed_audios_embeddings[i] - morphed_audios_embeddings[0]) # Assuming the source is the first embedding of the list
         smoothness_values.append(dist.item())
 
@@ -32,9 +32,11 @@ def smoothness_clap_corr(morphed_audios_embeddings, alpha_values):
     return pearson_corr, p
 
 
-def compute_smoothness_clap_corr(dirname: str, metric_csv: str, morph_type: str):
+def compute_smoothness_clap_corr(dirname: str, metric_csv: str, morph_type: str, embedding: str):
+    assert embedding in ["clap", "mert"]
+
     # Load trajectories tensor
-    trajectories_tensor_path = f"{dirname}/clap_{morph_type}_trajectories.pt"
+    trajectories_tensor_path = f"{dirname}/{embedding}_{morph_type}_trajectories.pt"
     trajectories_tensor = torch.load(trajectories_tensor_path)
 
     pearson_corrs = []
