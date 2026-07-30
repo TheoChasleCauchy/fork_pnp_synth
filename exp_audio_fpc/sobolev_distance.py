@@ -10,7 +10,7 @@ embeddings_sizes = {
     "MSCLAP": 1024,
     "MERT_v1-95M": 768,
     "MERT_v1-330M": 768,
-    "MERT_v0-public": 1024,
+    "MERT_v0-public": 768,
     "VGGish": 128
 }
 
@@ -68,7 +68,7 @@ def compute_sobolev_distances(embeddings_folder, results_dir, model_name, trajec
     
     for k, p in [(1, 2), (0, 2)]:
         sobolev_dists = []
-        for i_traj, trajectory in enumerate(tqdm(trajectories, desc="Processing couples", total=len(trajectories))):
+        for i_traj, trajectory in enumerate(tqdm(trajectories, desc=f"Computing Sobolev distance (k={k}, p={p})", total=len(trajectories))):
             morph_embeddings = []
             for i_theta in range(len(trajectory)):
                 embedding = torch.tensor(np.load(os.path.join(embeddings_folder, f"embedding_{model_name}_row_{i_traj}_AB_I{i_theta}.npy")))
@@ -90,60 +90,3 @@ def compute_sobolev_distances(embeddings_folder, results_dir, model_name, trajec
             for i, value in enumerate(sobolev_dists):
                 writer.writerow([i, value])
             writer.writerow(["Mean Sobolev Distance", f"{np.mean(sobolev_dists)} +- {np.std(sobolev_dists)}"])
-            
-def make_table(results_dir, models):
-    import re
-
-    # Initialize a dictionary to store the mean and std for each (k, p) and model
-    table_data = {}
-
-    for k, p in [(1, 2), (0, 2)]:
-        row_key = f"Sobolev ({k}, {p}) $\downarrow$"
-        table_data[row_key] = {}
-
-        for model_name in models:
-            # Get metric value of random baseline
-            random_csv_path = os.path.join(results_dir, "random", model_name, f"{model_name}_sobolev_dists_{k}_{p}.csv")
-            if os.path.exists(random_csv_path):
-                with open(random_csv_path, "r") as csvfile:
-                    reader = csv.reader(csvfile)
-                    rows = list(reader)
-                    # Extract the last row, which contains the mean and std
-                    random_mean_std_str = rows[-1][1]
-                    matches = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", random_mean_std_str)
-                    random_mean, _ = map(float, matches)
-            else:
-                raise FileNotFoundError(f"File not found: {random_csv_path}")
-
-            # Get metric value
-            csv_path = os.path.join(results_dir, "experiment", model_name, f"{model_name}_sobolev_dists_{k}_{p}.csv")
-            with open(csv_path, "r") as csvfile:
-                reader = csv.reader(csvfile)
-                rows = list(reader)
-                # Extract the last row, which contains the mean and std
-                mean_std_str = rows[-1][1]
-
-                # Normalize by random value
-                matches = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", mean_std_str)
-                mean, std = map(float, matches)
-                mean_normalized, std_normalized = mean/random_mean, std/random_mean
-                mean_std_str = f"{mean_normalized:.2f} +- {std_normalized:.2f}"
-
-                table_data[row_key][model_name] = mean_std_str
-
-    # Write the table to a CSV file
-    output_csv_path = os.path.join(results_dir, "sobolev_distances_table.csv")
-    with open(output_csv_path, "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-
-        # Write header: models as rows
-        header = ["Model", "Sobolev Distance (0, 2) $\downarrow$", "Sobolev Distance (1, 2) $\downarrow$", "Size"]
-        writer.writerow(header)
-
-        # Write rows: models as rows, (k, p) as columns, mean+-std as values
-        for model_name in models:
-            row = [model_name]
-            for k, p in [(0, 2), (1, 2)]:
-                row.append(table_data[f"Sobolev ({k}, {p}) $\downarrow$"][model_name])
-            row.append(embeddings_sizes[model_name])
-            writer.writerow(row)

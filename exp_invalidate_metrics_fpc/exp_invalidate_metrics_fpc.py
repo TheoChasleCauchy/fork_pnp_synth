@@ -44,13 +44,13 @@ dimensions = 512
 # 1. Prendre 1000 paires (A,B) de points aléatoires dans un plan 2D.
 dir = "exp_invalidate_metrics_fpc/generated/points"
 os.makedirs(dir, exist_ok=True)
-# sample_couples_specific_dimensions_space(number_of_couples, dir)
+sample_couples_specific_dimensions_space(number_of_couples, dir)
 
 # FPC 1
 print("Creating FPC 1 intermediate points...")
 # 2. Placer les points intermédiaires de chaque trajectoire AB sur un cercle de rayon alpha * AB avec un angle aléatoire.
 intermediate_points_filename = "exp_invalidate_metrics_fpc/generated/generated_fpc1_intermediate_points.csv"
-# create_fpc1_intermediate_points(num_intermediate_samples, dir)
+create_fpc1_intermediate_points(num_intermediate_samples, dir)
 
 # Optional: visualize the points
 # visualize = False
@@ -62,21 +62,21 @@ metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc1"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "fpc1"
 points_dir = f"exp_invalidate_metrics_fpc/generated/points"
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/mert_smoothness_mean_cdpam_values.csv", morph_type, "mert")
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/clap_smoothness_clap_corr_values.csv", morph_type, "clap")
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/mert_smoothness_clap_corr_values.csv", morph_type, "mert")
-# compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mfcc_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mfcc")
-# compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mert_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mert")
-# compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/mert_smoothness_mean_cdpam_values.csv", morph_type, "mert")
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/clap_smoothness_clap_corr_values.csv", morph_type, "clap")
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/mert_smoothness_clap_corr_values.csv", morph_type, "mert")
+compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mfcc_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mfcc")
+compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mert_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mert")
+compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
 
 # Baseline linéaire
 print("Creating linear intermediate points...")
 # 4. Placer les points intermédiaires uniformément sur le segment [AB].
 intermediate_points_filename = "exp_invalidate_metrics_fpc/generated/generated_linear_intermediate_points.csv"
-# create_linear_intermediate_points(num_intermediate_samples, dir)
+create_linear_intermediate_points(num_intermediate_samples, dir)
 
 # visualize = False
 # if visualize:
@@ -86,21 +86,21 @@ intermediate_points_filename = "exp_invalidate_metrics_fpc/generated/generated_l
 metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/linear"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "linear"
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/mert_smoothness_mean_cdpam_values.csv", morph_type, "mert")
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/clap_smoothness_clap_corr_values.csv", morph_type, "clap")
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/mert_smoothness_clap_corr_values.csv", morph_type, "mert")
-# compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mfcc_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mfcc")
-# compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mert_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mert")
-# compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/mert_smoothness_mean_cdpam_values.csv", morph_type, "mert")
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/clap_smoothness_clap_corr_values.csv", morph_type, "clap")
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/mert_smoothness_clap_corr_values.csv", morph_type, "mert")
+compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mfcc_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mfcc")
+compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mert_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mert")
+compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
 
 # Baseline aléatoire
 print("Creating random intermediate points...")
 # 4. Placer les points intermédiaires aléatoirement dans le plan.
 intermediate_points_filename = "exp_invalidate_metrics_fpc/generated/generated_random_intermediate_points.csv"
-# create_random_intermediate_points(num_intermediate_samples, dir)
+create_random_intermediate_points(num_intermediate_samples, dir)
 
 # visualize = False
 # if visualize:
@@ -110,21 +110,21 @@ intermediate_points_filename = "exp_invalidate_metrics_fpc/generated/generated_r
 metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/random"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "random"
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/mert_smoothness_mean_cdpam_values.csv", morph_type, "mert")
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/clap_smoothness_clap_corr_values.csv", morph_type, "clap")
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/mert_smoothness_clap_corr_values.csv", morph_type, "mert")
-# compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mfcc_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mfcc")
-# compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mert_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mert")
-# compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/mert_smoothness_mean_cdpam_values.csv", morph_type, "mert")
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/clap_smoothness_clap_corr_values.csv", morph_type, "clap")
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/mert_smoothness_clap_corr_values.csv", morph_type, "mert")
+compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mfcc_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mfcc")
+compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mert_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mert")
+compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
 
 print("Creating FPC 2 intermediate points...")
 # FPC 2
 # Placer les num_intermediate_samples-1 premiers points proche de 1 et le dernier proche de B.
 intermediate_points_filename = "exp_invalidate_metrics_fpc/generated/generated_fpc2_intermediate_points.csv"
-# create_fpc2_intermediate_points(num_intermediate_samples, dir)
+create_fpc2_intermediate_points(num_intermediate_samples, dir)
 
 # visualize = False
 # if visualize:
@@ -134,21 +134,21 @@ intermediate_points_filename = "exp_invalidate_metrics_fpc/generated/generated_f
 metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc2"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "fpc2"
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/mert_smoothness_mean_cdpam_values.csv", morph_type, "mert")
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/clap_smoothness_clap_corr_values.csv", morph_type, "clap")
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/mert_smoothness_clap_corr_values.csv", morph_type, "mert")
-# compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mfcc_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mfcc")
-# compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mert_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mert")
-# compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/mert_smoothness_mean_cdpam_values.csv", morph_type, "mert")
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/clap_smoothness_clap_corr_values.csv", morph_type, "clap")
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/mert_smoothness_clap_corr_values.csv", morph_type, "mert")
+compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mfcc_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mfcc")
+compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mert_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mert")
+compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
 
 print("Creating FPC 3 intermediate points...")
 # FPC 3
 # Placer les num_intermediate_samples-1 premiers points proche de 1 et le dernier proche de B.
 intermediate_points_filename = "exp_invalidate_metrics_fpc/generated/generated_fpc3_intermediate_points.csv"
-# create_fpc3_intermediate_points(num_intermediate_samples, dir)
+create_fpc3_intermediate_points(num_intermediate_samples, dir)
 
 # visualize = False
 # if visualize:
@@ -158,15 +158,15 @@ intermediate_points_filename = "exp_invalidate_metrics_fpc/generated/generated_f
 metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc3"
 os.makedirs(metrics_folder, exist_ok=True)
 morph_type = "fpc3"
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
-# compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
-# compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/mert_smoothness_mean_cdpam_values.csv", morph_type, "mert")
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/clap_smoothness_clap_corr_values.csv", morph_type, "clap")
-# compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/mert_smoothness_clap_corr_values.csv", morph_type, "mert")
-# compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mfcc_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mfcc")
-# compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mert_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mert")
-# compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
+compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
+compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/mert_smoothness_mean_cdpam_values.csv", morph_type, "mert")
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/clap_smoothness_clap_corr_values.csv", morph_type, "clap")
+compute_smoothness_clap_corr(points_dir, f"{metrics_folder}/mert_smoothness_clap_corr_values.csv", morph_type, "mert")
+compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mfcc_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mfcc")
+compute_soundmorpher_correspondence_mfccs(points_dir, f"{metrics_folder}/mert_soundmorpher_correspondence_mfccs_values.csv", morph_type, "mert")
+compute_sobolev_distances(points_dir, f"{metrics_folder}", morph_type)
 
 # 6. Make a table
 make_table()

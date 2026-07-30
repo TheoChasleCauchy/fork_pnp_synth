@@ -17,21 +17,21 @@ num_intermediate_samples = 10
 #               Compute random trajectories              -
 # --------------------------------------------------------
 
-# # 1. Generate random trajectories of points in a 2D space
+# # 1. Generate random trajectories of points in parameters space
 # generate_and_save_random_trajectories(seed, number_of_couples, num_intermediate_samples, filename="exp_embeddings_linearity/generated/random_thetas_trajectories.csv")
 
 # ## 2. Load the generated trajectories
-# trajectories = load_trajectories_from_csv("exp_embeddings_linearity/generated/random_thetas_trajectories.csv")
+trajectories = load_trajectories_from_csv("exp_embeddings_linearity/generated/random_thetas_trajectories.csv")
 
 # ## 3. Generate the audios
-# audio_dir = "exp_embeddings_linearity/generated/random_audio"
+audio_dir = "exp_embeddings_linearity/generated/random_audio"
 # os.makedirs(audio_dir, exist_ok=True)
 # # synthesize_audios_trajectories(trajectories, logscale=False, audio_dir=audio_dir)
 
-# ## 4. Compute embeddings
-# models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
-# embeddings_dir = "exp_embeddings_linearity/generated/random_embeddings/"
-# compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir)
+## 4. Compute embeddings
+models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
+embeddings_dir = "exp_embeddings_linearity/generated/random_embeddings/"
+compute_trajectories_embeddings(models, trajectories[0], audio_dir, embeddings_dir)
 
 # ## 5. Compute sobolev distance
 # results_dir = f"exp_embeddings_linearity/generated/results/random/"

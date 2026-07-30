@@ -19,3 +19,4 @@ uv.lock
 
 exp_embeddings_linearity/generated
 exp_invalidate_metrics_fpc/generated
+exp_audio_fpc/generated

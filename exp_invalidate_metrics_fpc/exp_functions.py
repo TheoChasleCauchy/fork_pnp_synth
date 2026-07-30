@@ -5,7 +5,7 @@ import csv
 
 embeddings = {
     "clap": [1, 512],
-    "mert": [1, 768],
+    "mert": [1, 1024],
     "cdpam": [1, 512],
     "mfcc": [20, 256] # For a 5 second audio at 44100Hz
 }
