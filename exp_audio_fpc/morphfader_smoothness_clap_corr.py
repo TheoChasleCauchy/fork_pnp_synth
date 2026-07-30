@@ -33,6 +33,7 @@ def smoothness_clap_corr(morphed_audios_embeddings, alpha_values):
 
 
 def compute_smoothness_clap_corr(results_dir: str, model_name: str, trajectories: list[np.ndarray], embeddings_folder: str):
+    assert model_name in ["MERT_v1-330M", "LaionCLAP_audio"]
 
     pearson_corrs = []
     for i_traj, trajectory in enumerate(tqdm(trajectories, desc="Computing Smoothness-CLAP Correlation", total=len(trajectories))):
@@ -49,7 +50,7 @@ def compute_smoothness_clap_corr(results_dir: str, model_name: str, trajectories
     # Write the values in a csv file
     results_path = os.path.join(results_dir, model_name)
     os.makedirs(results_path, exist_ok=True)
-    with open(f"{results_path}/{model_name}_smoothness_clap_corr_values.csv", "w", newline="") as csvfile:
+    with open(os.path.join(results_path, f"{model_name}_smoothness_clap_corr_values.csv"), "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["Row", "Pearson correlation", "P-value"])
         for i, (pearson_cor, p) in enumerate(pearson_corrs):

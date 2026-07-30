@@ -238,10 +238,8 @@ class CDPAM():
         
         _,a1,c1 = self.model.base_encoder.forward(audio1.unsqueeze(1))
         a1 = F.normalize(a1, dim=1)
-        print('a1:', a1.shape)
         _,a2,c2 = self.model.base_encoder.forward(audio2.unsqueeze(1))
         a2 = F.normalize(a2, dim=1)
-        print('a2:', a2.shape)
         dist1 = self.model.model_dist.forward(a1,a2)
         
         return dist1

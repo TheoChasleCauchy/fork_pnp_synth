@@ -18,5 +18,6 @@ uv.lock
 .vscode/
 
 exp_embeddings_linearity/generated
+exp_embeddings_linearity/archive_10_generated
 exp_invalidate_metrics_fpc/generated
 exp_audio_fpc/generated

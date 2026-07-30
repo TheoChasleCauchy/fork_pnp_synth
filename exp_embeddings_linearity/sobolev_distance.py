@@ -94,6 +94,8 @@ def compute_sobolev_distances(embeddings_folder, results_dir, model_name, trajec
 def make_table(results_dir, models):
     import re
 
+    print("Generating Sobolev distance table...")
+
     # Initialize a dictionary to store the mean and std for each (k, p) and model
     table_data = {}
 
@@ -147,3 +149,4 @@ def make_table(results_dir, models):
                 row.append(table_data[f"Sobolev ({k}, {p}) $\downarrow$"][model_name])
             row.append(embeddings_sizes[model_name])
             writer.writerow(row)
+    print("Sobolev distance table generated.")

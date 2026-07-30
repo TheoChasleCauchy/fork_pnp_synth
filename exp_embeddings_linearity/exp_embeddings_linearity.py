@@ -1,4 +1,3 @@
-import csv
 import os
 
 from generate_thetas import generate_and_save_couples, generate_and_save_trajectories, load_trajectories_from_csv
@@ -11,7 +10,7 @@ from random_trajectories import generate_and_save_random_trajectories
 seed = 42
 
 number_of_couples = 1000
-num_intermediate_samples = 10
+num_intermediate_samples = 11
 
 # --------------------------------------------------------
 #               Compute random trajectories              -
@@ -21,17 +20,17 @@ num_intermediate_samples = 10
 # generate_and_save_random_trajectories(seed, number_of_couples, num_intermediate_samples, filename="exp_embeddings_linearity/generated/random_thetas_trajectories.csv")
 
 # ## 2. Load the generated trajectories
-trajectories = load_trajectories_from_csv("exp_embeddings_linearity/generated/random_thetas_trajectories.csv")
+# trajectories = load_trajectories_from_csv("exp_embeddings_linearity/generated/random_thetas_trajectories.csv")
 
 # ## 3. Generate the audios
-audio_dir = "exp_embeddings_linearity/generated/random_audio"
+# audio_dir = "exp_embeddings_linearity/generated/random_audio"
 # os.makedirs(audio_dir, exist_ok=True)
-# # synthesize_audios_trajectories(trajectories, logscale=False, audio_dir=audio_dir)
+# synthesize_audios_trajectories(trajectories, logscale=False, audio_dir=audio_dir)
 
-## 4. Compute embeddings
-models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
-embeddings_dir = "exp_embeddings_linearity/generated/random_embeddings/"
-compute_trajectories_embeddings(models, trajectories[0], audio_dir, embeddings_dir)
+# ## 4. Compute embeddings
+# models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
+# embeddings_dir = "exp_embeddings_linearity/generated/random_embeddings/"
+# compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir)
 
 # ## 5. Compute sobolev distance
 # results_dir = f"exp_embeddings_linearity/generated/results/random/"
@@ -70,6 +69,6 @@ compute_trajectories_embeddings(models, trajectories[0], audio_dir, embeddings_d
 #     embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
 #     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
 
-models = ["VGGish", "MSCLAP", "MERT_v0-public", "MERT_v1-95M", "MERT_v1-330M", "LaionCLAP_audio", "LaionCLAP_music"]
+models = ["VGGish", "MSCLAP", "LaionCLAP_music", "LaionCLAP_audio", "MERT_v0-public", "MERT_v1-95M", "MERT_v1-330M"]
 results_dir = f"exp_embeddings_linearity/generated/results/"
 make_table(results_dir, models)

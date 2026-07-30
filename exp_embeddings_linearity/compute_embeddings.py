@@ -11,9 +11,6 @@ def compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_
         embeddings_folder = f"{embeddings_dir}/{model_name}"
         os.makedirs(embeddings_folder, exist_ok=True)
         for i_traj, trajectory in enumerate(tqdm(trajectories, desc=f"Computing Embeddings for model {model_name}", total=len(trajectories))):
-            emmb = np.load(os.path.join(embeddings_folder, f"embedding_{model_name}_row_{0}_AB_I{0}.npy"))
-            print(emmb.shape)
-
             for i_theta in range(len(trajectory)):
                 if os.path.exists(os.path.join(embeddings_folder, f"embedding_{model_name}_row_{i_traj}_AB_I{i_theta}.npy")):
                     continue

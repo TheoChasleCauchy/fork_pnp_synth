@@ -27,7 +27,7 @@ def load_trajectories_from_csv(filename):
 
 seed = 42
 
-num_intermediate_samples = 10
+num_intermediate_samples = 11
 
 # --------------------------------------------------------
 #               Compute random trajectories              -
@@ -41,11 +41,24 @@ results_dir = f"exp_audio_fpc/generated/results/random/"
 os.makedirs(results_dir, exist_ok=True)
 model_name = "MERT_v1-330M"
 embeddings_dir = f"exp_embeddings_linearity/generated/random_embeddings/{model_name}"
-# compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
-# compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
-# compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
-# compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
-# compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
+compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
+compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
+compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
+compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
+compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
+
+model_name = "MFCC"
+audios_dir = f"exp_embeddings_linearity/generated/random_audio"
+compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
+
+model_name = "LaionCLAP_audio"
+embeddings_dir = f"exp_embeddings_linearity/generated/random_embeddings/{model_name}"
+compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
+
+model_name = "CDPAM"
+audios_dir = f"exp_embeddings_linearity/generated/random_audio"
+compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
+compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
 
 # --------------------------------------------------------
 #                Compute experiments points              -
@@ -59,11 +72,24 @@ results_dir = f"exp_audio_fpc/generated/results/experiment/"
 os.makedirs(results_dir, exist_ok=True)
 model_name = "MERT_v1-330M"
 embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
-# compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
-# compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
-# compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
-# compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
-# compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
+compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
+compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
+compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
+compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
+compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
+
+model_name = "MFCC"
+audios_dir = f"exp_embeddings_linearity/generated/audio"
+compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
+
+model_name = "LaionCLAP_audio"
+embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
+compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
+
+model_name = "CDPAM"
+audios_dir = f"exp_embeddings_linearity/generated/audio"
+compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
+compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
 
 # ----------------------------------------
 #                Make table              -

@@ -8,14 +8,14 @@ def make_table(results_dir):
         metrics_values = {}
         
         # Get Smoothness Clap metric value
-        # clap_smoothness_clap_csv_path = os.path.join(results_dir, "clap_smoothness_clap_corr_values.csv")
-        # with open(clap_smoothness_clap_csv_path, 'r') as f:
-        #     reader = list(csv.reader(f))
-        #     row = reader[-1] # Get the last row where the mean value is
-        #     value_string = row[1]
-        #     mean_std_clap = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
-        #     mean_smoothness_clap_corr, std_smoothness_clap_corr = map(float, mean_std_clap)
-        #     metrics_values["CLAP Smoothness"] = (mean_smoothness_clap_corr, std_smoothness_clap_corr)
+        clap_smoothness_clap_csv_path = os.path.join(results_dir, "LaionCLAP_audio", "clap_smoothness_clap_corr_values.csv")
+        with open(clap_smoothness_clap_csv_path, 'r') as f:
+            reader = list(csv.reader(f))
+            row = reader[-1] # Get the last row where the mean value is
+            value_string = row[1]
+            mean_std_clap = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
+            mean_smoothness_clap_corr, std_smoothness_clap_corr = map(float, mean_std_clap)
+            metrics_values["CLAP Smoothness"] = (mean_smoothness_clap_corr, std_smoothness_clap_corr)
 
         mert_smoothness_clap_csv_path = os.path.join(results_dir, "MERT_v1-330M", "MERT_v1-330M_smoothness_clap_corr_values.csv")
         with open(mert_smoothness_clap_csv_path, 'r') as f:
@@ -47,14 +47,14 @@ def make_table(results_dir):
             metrics_values["Sobolev (1, 2)"] = (mean_sobolev_k1_p2, std_sobolev_k1_p2)
         
         # Get Correspondence value
-        # mfcc_correspondence_csv_path = os.path.join(results_dir, "mfcc_soundmorpher_correspondence_mfccs_values.csv")
-        # with open(mfcc_correspondence_csv_path, 'r') as f:
-        #     reader = list(csv.reader(f))
-        #     row = reader[-1] # Get the last row where the mean value is
-        #     value_string = row[1]
-        #     mean_std_correspondence = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
-        #     mean_correspondence, std_correspondence = map(float, mean_std_correspondence)
-        #     metrics_values["MFCC Correspondence"] = (mean_correspondence, std_correspondence)
+        mfcc_correspondence_csv_path = os.path.join(results_dir, "MFCC", "MFCC_soundmorpher_correspondence_mfccs_values.csv")
+        with open(mfcc_correspondence_csv_path, 'r') as f:
+            reader = list(csv.reader(f))
+            row = reader[-1] # Get the last row where the mean value is
+            value_string = row[1]
+            mean_std_correspondence = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
+            mean_correspondence, std_correspondence = map(float, mean_std_correspondence)
+            metrics_values["MFCC Correspondence"] = (mean_correspondence, std_correspondence)
 
         mert_correspondence_csv_path = os.path.join(results_dir, "MERT_v1-330M", "MERT_v1-330M_correspondence_mfccs_values.csv")
         with open(mert_correspondence_csv_path, 'r') as f:
@@ -66,14 +66,14 @@ def make_table(results_dir):
             metrics_values["MERT Correspondence"] = (mean_correspondence, std_correspondence)
         
         # Get Intermediateness value
-        # cdpam_intermediateness_csv_path = os.path.join(results_dir, "cdpam_intermediateness_total_cdpam_values.csv")
-        # with open(cdpam_intermediateness_csv_path, 'r') as f:
-        #     reader = list(csv.reader(f))
-        #     row = reader[-1] # Get the last row where the mean value is
-        #     value_string = row[1]
-        #     mean_std_intermediateness = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
-        #     mean_intermediateness, std_intermediateness = map(float, mean_std_intermediateness)
-        #     metrics_values["CDPAM Intermediateness"] = (mean_intermediateness, std_intermediateness)
+        cdpam_intermediateness_csv_path = os.path.join(results_dir, "CDPAM", "CDPAM_intermediateness_total_cdpam_values.csv")
+        with open(cdpam_intermediateness_csv_path, 'r') as f:
+            reader = list(csv.reader(f))
+            row = reader[-1] # Get the last row where the mean value is
+            value_string = row[1]
+            mean_std_intermediateness = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
+            mean_intermediateness, std_intermediateness = map(float, mean_std_intermediateness)
+            metrics_values["CDPAM Intermediateness"] = (mean_intermediateness, std_intermediateness)
 
         mert_intermediateness_csv_path = os.path.join(results_dir, "MERT_v1-330M", "MERT_v1-330M_intermediateness_total_cdpam_values.csv")
         with open(mert_intermediateness_csv_path, 'r') as f:
@@ -85,14 +85,14 @@ def make_table(results_dir):
             metrics_values["MERT Intermediateness"] = (mean_intermediateness, std_intermediateness)
 
         # Get Smoothness CDPAM value
-        # cdpam_smoothness_cdpam_csv_path = os.path.join(results_dir, "cdpam_smoothness_mean_cdpam_values.csv")
-        # with open(cdpam_smoothness_cdpam_csv_path, 'r') as f:
-        #     reader = list(csv.reader(f))
-        #     row = reader[-1] # Get the last row where the mean value is
-        #     value_string = row[1]
-        #     mean_std_smoothness_cdpam = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
-        #     mean_smoothness_cdpam, std_smoothness_cdpam = map(float, mean_std_smoothness_cdpam)
-        #     metrics_values["CDPAM Smoothness CDPAM"] = (mean_smoothness_cdpam, std_smoothness_cdpam)
+        cdpam_smoothness_cdpam_csv_path = os.path.join(results_dir, "CDPAM", "CDPAM_smoothness_mean_cdpam_values.csv")
+        with open(cdpam_smoothness_cdpam_csv_path, 'r') as f:
+            reader = list(csv.reader(f))
+            row = reader[-1] # Get the last row where the mean value is
+            value_string = row[1]
+            mean_std_smoothness_cdpam = re.findall(r"[-+]?\d*\.\d+(?:[eE][-+]?\d+)?", value_string)
+            mean_smoothness_cdpam, std_smoothness_cdpam = map(float, mean_std_smoothness_cdpam)
+            metrics_values["CDPAM Smoothness CDPAM"] = (mean_smoothness_cdpam, std_smoothness_cdpam)
 
         mert_smoothness_cdpam_csv_path = os.path.join(results_dir, "MERT_v1-330M", "MERT_v1-330M_smoothness_mean_cdpam_values.csv")
         with open(mert_smoothness_cdpam_csv_path, 'r') as f:

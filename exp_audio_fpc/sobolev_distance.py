@@ -84,7 +84,7 @@ def compute_sobolev_distances(embeddings_folder, results_dir, model_name, trajec
         # Write sobolev values in a csv file
         results_path = os.path.join(results_dir, model_name)
         os.makedirs(results_path, exist_ok=True)
-        with open(f"{results_path}/{model_name}_sobolev_dists_{k}_{p}.csv", "w", newline="") as csvfile:
+        with open(os.path.join(results_path, f"{model_name}_sobolev_dists_{k}_{p}.csv"), "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["Row", "Sobolev Distance"])
             for i, value in enumerate(sobolev_dists):
