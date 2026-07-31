@@ -149,8 +149,8 @@ def make_table(results_dir):
         row = [
             "Intermediateness",
             "CDPAM",
-            f"{linear_metrics_values['CDPAM Intermediateness'][0]:.2e} +- {linear_metrics_values['CDPAM Intermediateness'][1]:.2e}",
-            f"{random_metrics_values['CDPAM Intermediateness'][0]:.2e} +- {random_metrics_values['CDPAM Intermediateness'][1]:.2e}",
+            f"{linear_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {linear_metrics_values['CDPAM Intermediateness'][1]:.2f}",
+            f"{random_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {random_metrics_values['CDPAM Intermediateness'][1]:.2f}",
             # f"{fpc1_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc1_metrics_values['CDPAM Intermediateness'][1]:.2f}",
             # f"{fpc2_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc2_metrics_values['CDPAM Intermediateness'][1]:.2f}",
             # f"{fpc3_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc3_metrics_values['CDPAM Intermediateness'][1]:.2f}"
@@ -159,8 +159,8 @@ def make_table(results_dir):
         row = [
             "Smoothness CDPAM",
             "CDPAM",
-            f"{linear_metrics_values['CDPAM Smoothness CDPAM'][0]:.2e} +- {linear_metrics_values['CDPAM Smoothness CDPAM'][1]:.2e}",
-            f"{random_metrics_values['CDPAM Smoothness CDPAM'][0]:.2e} +- {random_metrics_values['CDPAM Smoothness CDPAM'][1]:.2e}",
+            f"{linear_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {linear_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
+            f"{random_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {random_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
             # f"{fpc1_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc1_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
             # f"{fpc2_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc2_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
             # f"{fpc3_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc3_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}"
