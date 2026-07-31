@@ -8,7 +8,7 @@ def make_table(results_dir):
         metrics_values = {}
         
         # Get Smoothness Clap metric value
-        clap_smoothness_clap_csv_path = os.path.join(results_dir, "LaionCLAP_audio", "clap_smoothness_clap_corr_values.csv")
+        clap_smoothness_clap_csv_path = os.path.join(results_dir, "LaionCLAP_audio", "LaionCLAP_audio_smoothness_clap_corr_values.csv")
         with open(clap_smoothness_clap_csv_path, 'r') as f:
             reader = list(csv.reader(f))
             row = reader[-1] # Get the last row where the mean value is
@@ -47,7 +47,7 @@ def make_table(results_dir):
             metrics_values["Sobolev (1, 2)"] = (mean_sobolev_k1_p2, std_sobolev_k1_p2)
         
         # Get Correspondence value
-        mfcc_correspondence_csv_path = os.path.join(results_dir, "MFCC", "MFCC_soundmorpher_correspondence_mfccs_values.csv")
+        mfcc_correspondence_csv_path = os.path.join(results_dir, "MFCC", "MFCC_correspondence_mfccs_values.csv")
         with open(mfcc_correspondence_csv_path, 'r') as f:
             reader = list(csv.reader(f))
             row = reader[-1] # Get the last row where the mean value is
@@ -126,46 +126,46 @@ def make_table(results_dir):
         writer.writerow(header)
 
         # Write rows: models as rows, (k, p) as columns, mean+-std as values
-        # row = [
-        #     "Correspondence", 
-        #     "MFCC",
-        #     f"{linear_metrics_values['MFCC Correspondence'][0]:.2f} +- {linear_metrics_values['MFCC Correspondence'][1]:.2f}",
-        #     f"{random_metrics_values['MFCC Correspondence'][0]:.2f} +- {random_metrics_values['MFCC Correspondence'][1]:.2f}",
-        #     # f"{fpc1_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc1_metrics_values['MFCC Correspondence'][1]:.2f}",
-        #     # f"{fpc2_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc2_metrics_values['MFCC Correspondence'][1]:.2f}",
-        #     # f"{fpc3_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc3_metrics_values['MFCC Correspondence'][1]:.2f}"
-        # ]
-        # writer.writerow(row)
-        # row = [
-        #     "Smoothness CLAP",
-        #     "L-CLAP audio",
-        #     f"{linear_metrics_values['CLAP Smoothness'][0]:.2f} +- {linear_metrics_values['CLAP Smoothness'][1]:.2f}",
-        #     f"{random_metrics_values['CLAP Smoothness'][0]:.2f} +- {random_metrics_values['CLAP Smoothness'][1]:.2f}",
-        #     # f"{fpc1_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc1_metrics_values['CLAP Smoothness'][1]:.2f}",
-        #     # f"{fpc2_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc2_metrics_values['CLAP Smoothness'][1]:.2f}",
-        #     # f"{fpc3_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc3_metrics_values['CLAP Smoothness'][1]:.2f}"
-        # ]
-        # writer.writerow(row)
-        # row = [
-        #     "Intermediateness",
-        #     "CDPAM",
-        #     f"{linear_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {linear_metrics_values['CDPAM Intermediateness'][1]:.2f}",
-        #     f"{random_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {random_metrics_values['CDPAM Intermediateness'][1]:.2f}",
-        #     # f"{fpc1_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc1_metrics_values['CDPAM Intermediateness'][1]:.2f}",
-        #     # f"{fpc2_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc2_metrics_values['CDPAM Intermediateness'][1]:.2f}",
-        #     # f"{fpc3_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc3_metrics_values['CDPAM Intermediateness'][1]:.2f}"
-        # ]
-        # writer.writerow(row)
-        # row = [
-        #     "Smoothness CDPAM",
-        #     "CDPAM",
-        #     f"{linear_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {linear_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
-        #     f"{random_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {random_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
-        #     # f"{fpc1_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc1_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
-        #     # f"{fpc2_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc2_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
-        #     # f"{fpc3_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc3_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}"
-        # ]
-        # writer.writerow(row)
+        row = [
+            "Correspondence", 
+            "MFCC",
+            f"{linear_metrics_values['MFCC Correspondence'][0]:.2f} +- {linear_metrics_values['MFCC Correspondence'][1]:.2f}",
+            f"{random_metrics_values['MFCC Correspondence'][0]:.2f} +- {random_metrics_values['MFCC Correspondence'][1]:.2f}",
+            # f"{fpc1_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc1_metrics_values['MFCC Correspondence'][1]:.2f}",
+            # f"{fpc2_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc2_metrics_values['MFCC Correspondence'][1]:.2f}",
+            # f"{fpc3_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc3_metrics_values['MFCC Correspondence'][1]:.2f}"
+        ]
+        writer.writerow(row)
+        row = [
+            "Smoothness CLAP",
+            "L-CLAP audio",
+            f"{linear_metrics_values['CLAP Smoothness'][0]:.2f} +- {linear_metrics_values['CLAP Smoothness'][1]:.2f}",
+            f"{random_metrics_values['CLAP Smoothness'][0]:.2f} +- {random_metrics_values['CLAP Smoothness'][1]:.2f}",
+            # f"{fpc1_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc1_metrics_values['CLAP Smoothness'][1]:.2f}",
+            # f"{fpc2_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc2_metrics_values['CLAP Smoothness'][1]:.2f}",
+            # f"{fpc3_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc3_metrics_values['CLAP Smoothness'][1]:.2f}"
+        ]
+        writer.writerow(row)
+        row = [
+            "Intermediateness",
+            "CDPAM",
+            f"{linear_metrics_values['CDPAM Intermediateness'][0]:.2e} +- {linear_metrics_values['CDPAM Intermediateness'][1]:.2e}",
+            f"{random_metrics_values['CDPAM Intermediateness'][0]:.2e} +- {random_metrics_values['CDPAM Intermediateness'][1]:.2e}",
+            # f"{fpc1_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc1_metrics_values['CDPAM Intermediateness'][1]:.2f}",
+            # f"{fpc2_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc2_metrics_values['CDPAM Intermediateness'][1]:.2f}",
+            # f"{fpc3_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc3_metrics_values['CDPAM Intermediateness'][1]:.2f}"
+        ]
+        writer.writerow(row)
+        row = [
+            "Smoothness CDPAM",
+            "CDPAM",
+            f"{linear_metrics_values['CDPAM Smoothness CDPAM'][0]:.2e} +- {linear_metrics_values['CDPAM Smoothness CDPAM'][1]:.2e}",
+            f"{random_metrics_values['CDPAM Smoothness CDPAM'][0]:.2e} +- {random_metrics_values['CDPAM Smoothness CDPAM'][1]:.2e}",
+            # f"{fpc1_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc1_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
+            # f"{fpc2_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc2_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
+            # f"{fpc3_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc3_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}"
+        ]
+        writer.writerow(row)
 
         # MERT
         row = [
@@ -228,4 +228,5 @@ def make_table(results_dir):
             # f"{fpc3_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpc3_metrics_values['Sobolev (1, 2)'][1]:.2f}"
         ]
         writer.writerow(row)
-    
+
+# make_table("exp_audio_fpc/generated/results")

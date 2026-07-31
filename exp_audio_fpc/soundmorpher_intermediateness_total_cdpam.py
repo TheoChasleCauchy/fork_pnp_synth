@@ -38,41 +38,24 @@ def mert_process_csv(trajectories: list[np.ndarray], audios_or_embeddings_folder
 
     return intermediateness_values
 
-def cdpam_process_csv(trajectories: list[np.ndarray], audios_folder: str):
+def cdpam_process_csv(results_dir: str):
 
-    from cdpam import CDPAM
-    import librosa
-    
-    CDPAM_model = CDPAM(dev=device)
+    # Load csv and add each row as a list
+    CDPAM_csv = f"{results_dir}/cdpam_values.csv"
 
-    def _load_audio(audio_path):
-        """Helper to load audio file using librosa."""
-        return librosa.load(audio_path, sr=22050, mono=True)[0]
+    CDPAM_trajectories = []
+
+    with open(CDPAM_csv, 'r') as f:
+        reader = csv.reader(f)
+        next(reader)  # Skip the header row
+
+        for row in reader:
+            CDPAM_trajectories.append([float(x) for x in row])
 
     # Compute intermediateness value 
     intermediateness_values = []
-    for i_traj, trajectory in enumerate(tqdm(trajectories, desc="Computing Intermediateness Total CDPAM", total=len(trajectories))):
-        morph_audio_names = []
-        for i_theta in range(len(trajectory)):
-            # Load the audio files for each theta value
-            morph_name = os.path.join(audios_folder, f"audio_row_{i_traj}_AB_I{i_theta}.wav")
-            morph_audio_names.append(morph_name)
-
-        morphed_audios = []
-        for i_theta in range(len(trajectory)):
-            audio = torch.from_numpy(_load_audio(morph_audio_names[i_theta])).float().unsqueeze(0)
-            morphed_audios.append(audio)
-        
-
-        CDPAM_values = []
-        for i in range(len(morphed_audios)-1):
-            with torch.no_grad():
-                CDPAM_value = CDPAM_model.forward(morphed_audios[i], morphed_audios[i+1]).item()
-                CDPAM_values.append(CDPAM_value)
-                del CDPAM_value
-
-        # intermediateness_value = torch.sum(torch.stack([torch.linalg.norm(trajectory[i+1] - trajectory[i]) for i in range(len(trajectory)-1)]))
-        intermediateness_value = torch.tensor(CDPAM_values).sum()
+    for CDPAM_trajectory in tqdm(CDPAM_trajectories, desc="Computing Intermediateness Total CDPAM", total=len(CDPAM_trajectories)):
+        intermediateness_value = torch.tensor(CDPAM_trajectory).sum()
         intermediateness_values.append(intermediateness_value.item())
 
     return intermediateness_values
@@ -84,7 +67,7 @@ def compute_intermediateness_total_cdpam(results_dir: str, model_name: str, traj
         case "MERT_v1-330M":
             intermediateness_values = mert_process_csv(trajectories, audios_or_embeddings_folder, model_name)
         case "CDPAM":
-            intermediateness_values = cdpam_process_csv(trajectories, audios_or_embeddings_folder)
+            intermediateness_values = cdpam_process_csv(results_dir)
 
     # Write intermediateness values in a csv file
     os.makedirs(os.path.join(results_dir, model_name), exist_ok=True)
