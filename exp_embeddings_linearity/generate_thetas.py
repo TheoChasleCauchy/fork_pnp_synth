@@ -3,12 +3,15 @@ import random
 import csv
 import numpy as np
 
-# Hypercube: [[1500, 8000], [0.015, 1.0], [0.15, 1000], [-5, -0.5], [0.01, 1.0]]
+# Hypercube: [[1500, 8000], [0.015, 1.0], [0.15, 2], [10**-5, 0.3], [0.25, 1.0]]
 min_omega, max_omega = 1500, 8000
+min_log_omega, max_log_omega = np.log10(min_omega), np.log10(max_omega)
 min_tau, max_tau = 0.015, 1.0
-min_p, max_p = 0.15, 1000
-min_D, max_D = -5, -0.5
-min_alpha, max_alpha = 0.01, 1.0
+min_p, max_p = 0.15, 2
+min_logp, max_logp = np.log10(min_p), np.log10(max_p)
+min_D, max_D = 10**-5, 0.3
+min_log_D, max_log_D = np.log10(min_D), np.log10(max_D)
+min_alpha, max_alpha = 0.25, 1.0
 
 def generate_and_save_couples(seed, number_of_couples, filename="exp_embeddings_linearity/generated/thetas_couples.csv"):
 
@@ -18,12 +21,12 @@ def generate_and_save_couples(seed, number_of_couples, filename="exp_embeddings_
     couples = []
 
     for _ in range(number_of_couples):
-        omega = random.uniform(min_omega, max_omega)
+        log_omega = random.uniform(min_log_omega, max_log_omega)
         tau = random.uniform(min_tau, max_tau)
-        D = random.uniform(min_D, max_D)
+        log_D = random.uniform(min_log_D, max_log_D)
         alpha = random.uniform(min_alpha, max_alpha)
-        A = (omega, tau, min_p, D, alpha)
-        B = (omega, tau, max_p, D, alpha)
+        A = (log_omega, tau, min_logp, log_D, alpha)
+        B = (log_omega, tau, max_logp, log_D, alpha)
 
         # Flatten A and B into a single row
         row = (*A, *B)
@@ -83,16 +86,16 @@ def generate_and_save_trajectories(seed, points_couples_filename: str, num_inter
     os.makedirs(os.path.dirname(filename), exist_ok=True)
 
     trajectories = []
-    thetas = load_and_extract_couples(points_couples_filename)
-    for theta in thetas:
+    thetas_couples = load_and_extract_couples(points_couples_filename)
+    for thetas_couple in thetas_couples:
         row = []
-        row.extend(theta[0])
+        row.extend(thetas_couple[0])
 
-        intermediates = np.linspace(theta[0], theta[-1], num_intermediate_samples+2)[1:-1]
+        intermediates = np.linspace(thetas_couple[0], thetas_couple[-1], num_intermediate_samples+2)[1:-1]
         for intermediate in intermediates:
             row.extend(intermediate)
 
-        row.extend(theta[-1])
+        row.extend(thetas_couple[-1])
 
         trajectories.append(row)
 
