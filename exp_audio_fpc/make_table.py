@@ -104,17 +104,16 @@ def make_table(results_dir):
             metrics_values["MERT Smoothness CDPAM"] = (mean_smoothness_cdpam, std_smoothness_cdpam)
         
         return metrics_values
-        
-    # results_dir_fpc1 = "exp_invalidate_metrics_fpc/generated/metrics/fpc1"
-    # fpc1_metrics_values = get_metrics_values(results_dir_fpc1)
-    # results_dir_fpc2 = "exp_invalidate_metrics_fpc/generated/metrics/fpc2"
-    # fpc2_metrics_values = get_metrics_values(results_dir_fpc2)
-    # results_dir_fpc3 = "exp_invalidate_metrics_fpc/generated/metrics/fpc3"
-    # fpc3_metrics_values = get_metrics_values(results_dir_fpc3)
+    
     results_dir_linear = f"{results_dir}/experiment"
     linear_metrics_values = get_metrics_values(results_dir_linear)
     results_dir_random = f"{results_dir}/random"
     random_metrics_values = get_metrics_values(results_dir_random)
+        
+    results_dir_fpnuc = "exp_invalidate_metrics_fpc/generated/metrics/fpnuc"
+    fpnuc_metrics_values = get_metrics_values(results_dir_fpnuc)
+    results_dir_fpcc = "exp_invalidate_metrics_fpc/generated/metrics/fpcc"
+    fpcc_metrics_values = get_metrics_values(results_dir_fpcc)
 
     # Write the table to a CSV file
     output_csv_path = os.path.join(results_dir, "metrics_table.csv")
@@ -122,7 +121,7 @@ def make_table(results_dir):
         writer = csv.writer(csvfile)
 
         # Write header: metrics as rows
-        header = ["Metric", "Encoder", "Ideal Value", "Random Value"]#, "FPC 1 Value", "FPC 2 Value", "FPC 3 Value"]
+        header = ["Metric", "Encoder", "Ideal Value", "Random Value", "FPNUC Value", "FPCC Value"]
         writer.writerow(header)
 
         # Write rows: models as rows, (k, p) as columns, mean+-std as values
@@ -131,9 +130,8 @@ def make_table(results_dir):
             "MFCC",
             f"{linear_metrics_values['MFCC Correspondence'][0]:.2f} +- {linear_metrics_values['MFCC Correspondence'][1]:.2f}",
             f"{random_metrics_values['MFCC Correspondence'][0]:.2f} +- {random_metrics_values['MFCC Correspondence'][1]:.2f}",
-            # f"{fpc1_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc1_metrics_values['MFCC Correspondence'][1]:.2f}",
-            # f"{fpc2_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc2_metrics_values['MFCC Correspondence'][1]:.2f}",
-            # f"{fpc3_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpc3_metrics_values['MFCC Correspondence'][1]:.2f}"
+            f"{fpnuc_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpnuc_metrics_values['MFCC Correspondence'][1]:.2f}",
+            f"{fpcc_metrics_values['MFCC Correspondence'][0]:.2f} +- {fpcc_metrics_values['MFCC Correspondence'][1]:.2f}",
         ]
         writer.writerow(row)
         row = [
@@ -141,9 +139,8 @@ def make_table(results_dir):
             "L-CLAP audio",
             f"{linear_metrics_values['CLAP Smoothness'][0]:.2f} +- {linear_metrics_values['CLAP Smoothness'][1]:.2f}",
             f"{random_metrics_values['CLAP Smoothness'][0]:.2f} +- {random_metrics_values['CLAP Smoothness'][1]:.2f}",
-            # f"{fpc1_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc1_metrics_values['CLAP Smoothness'][1]:.2f}",
-            # f"{fpc2_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc2_metrics_values['CLAP Smoothness'][1]:.2f}",
-            # f"{fpc3_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpc3_metrics_values['CLAP Smoothness'][1]:.2f}"
+            f"{fpnuc_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpnuc_metrics_values['CLAP Smoothness'][1]:.2f}",
+            f"{fpcc_metrics_values['CLAP Smoothness'][0]:.2f} +- {fpcc_metrics_values['CLAP Smoothness'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
@@ -151,9 +148,8 @@ def make_table(results_dir):
             "CDPAM",
             f"{linear_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {linear_metrics_values['CDPAM Intermediateness'][1]:.2f}",
             f"{random_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {random_metrics_values['CDPAM Intermediateness'][1]:.2f}",
-            # f"{fpc1_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc1_metrics_values['CDPAM Intermediateness'][1]:.2f}",
-            # f"{fpc2_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc2_metrics_values['CDPAM Intermediateness'][1]:.2f}",
-            # f"{fpc3_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpc3_metrics_values['CDPAM Intermediateness'][1]:.2f}"
+            f"{fpnuc_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpnuc_metrics_values['CDPAM Intermediateness'][1]:.2f}",
+            f"{fpcc_metrics_values['CDPAM Intermediateness'][0]:.2f} +- {fpcc_metrics_values['CDPAM Intermediateness'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
@@ -161,9 +157,8 @@ def make_table(results_dir):
             "CDPAM",
             f"{linear_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {linear_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
             f"{random_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {random_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
-            # f"{fpc1_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc1_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
-            # f"{fpc2_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc2_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
-            # f"{fpc3_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpc3_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}"
+            f"{fpnuc_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpnuc_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}",
+            f"{fpcc_metrics_values['CDPAM Smoothness CDPAM'][0]:.2f} +- {fpcc_metrics_values['CDPAM Smoothness CDPAM'][1]:.2f}"
         ]
         writer.writerow(row)
 
@@ -173,9 +168,8 @@ def make_table(results_dir):
             "MERT",
             f"{linear_metrics_values['MERT Correspondence'][0]:.2f} +- {linear_metrics_values['MERT Correspondence'][1]:.2f}",
             f"{random_metrics_values['MERT Correspondence'][0]:.2f} +- {random_metrics_values['MERT Correspondence'][1]:.2f}",
-            # f"{fpc1_metrics_values['MERT Correspondence'][0]:.2f} +- {fpc1_metrics_values['MERT Correspondence'][1]:.2f}",
-            # f"{fpc2_metrics_values['MERT Correspondence'][0]:.2f} +- {fpc2_metrics_values['MERT Correspondence'][1]:.2f}",
-            # f"{fpc3_metrics_values['MERT Correspondence'][0]:.2f} +- {fpc3_metrics_values['MERT Correspondence'][1]:.2f}"
+            f"{fpnuc_metrics_values['MERT Correspondence'][0]:.2f} +- {fpnuc_metrics_values['MERT Correspondence'][1]:.2f}",
+            f"{fpcc_metrics_values['MERT Correspondence'][0]:.2f} +- {fpcc_metrics_values['MERT Correspondence'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
@@ -183,9 +177,8 @@ def make_table(results_dir):
             "MERT",
             f"{linear_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {linear_metrics_values['MERT Smoothness CLAP'][1]:.2f}",
             f"{random_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {random_metrics_values['MERT Smoothness CLAP'][1]:.2f}",
-            # f"{fpc1_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {fpc1_metrics_values['MERT Smoothness CLAP'][1]:.2f}",
-            # f"{fpc2_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {fpc2_metrics_values['MERT Smoothness CLAP'][1]:.2f}",
-            # f"{fpc3_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {fpc3_metrics_values['MERT Smoothness CLAP'][1]:.2f}"
+            f"{fpnuc_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {fpnuc_metrics_values['MERT Smoothness CLAP'][1]:.2f}",
+            f"{fpcc_metrics_values['MERT Smoothness CLAP'][0]:.2f} +- {fpcc_metrics_values['MERT Smoothness CLAP'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
@@ -193,9 +186,8 @@ def make_table(results_dir):
             "MERT",
             f"{linear_metrics_values['MERT Intermediateness'][0]:.2f} +- {linear_metrics_values['MERT Intermediateness'][1]:.2f}",
             f"{random_metrics_values['MERT Intermediateness'][0]:.2f} +- {random_metrics_values['MERT Intermediateness'][1]:.2f}",
-            # f"{fpc1_metrics_values['MERT Intermediateness'][0]:.2f} +- {fpc1_metrics_values['MERT Intermediateness'][1]:.2f}",
-            # f"{fpc2_metrics_values['MERT Intermediateness'][0]:.2f} +- {fpc2_metrics_values['MERT Intermediateness'][1]:.2f}",
-            # f"{fpc3_metrics_values['MERT Intermediateness'][0]:.2f} +- {fpc3_metrics_values['MERT Intermediateness'][1]:.2f}"
+            f"{fpnuc_metrics_values['MERT Intermediateness'][0]:.2f} +- {fpnuc_metrics_values['MERT Intermediateness'][1]:.2f}",
+            f"{fpcc_metrics_values['MERT Intermediateness'][0]:.2f} +- {fpcc_metrics_values['MERT Intermediateness'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
@@ -203,9 +195,8 @@ def make_table(results_dir):
             "MERT",
             f"{linear_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {linear_metrics_values['MERT Smoothness CDPAM'][1]:.2f}",
             f"{random_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {random_metrics_values['MERT Smoothness CDPAM'][1]:.2f}",
-            # f"{fpc1_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {fpc1_metrics_values['MERT Smoothness CDPAM'][1]:.2f}",
-            # f"{fpc2_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {fpc2_metrics_values['MERT Smoothness CDPAM'][1]:.2f}",
-            # f"{fpc3_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {fpc3_metrics_values['MERT Smoothness CDPAM'][1]:.2f}"
+            f"{fpnuc_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {fpnuc_metrics_values['MERT Smoothness CDPAM'][1]:.2f}",
+            f"{fpcc_metrics_values['MERT Smoothness CDPAM'][0]:.2f} +- {fpcc_metrics_values['MERT Smoothness CDPAM'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
@@ -213,9 +204,8 @@ def make_table(results_dir):
             "MERT",
             f"{linear_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {linear_metrics_values['Sobolev (0, 2)'][1]:.2f}",
             f"{random_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {random_metrics_values['Sobolev (0, 2)'][1]:.2f}",
-            # f"{fpc1_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {fpc1_metrics_values['Sobolev (0, 2)'][1]:.2f}",
-            # f"{fpc2_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {fpc2_metrics_values['Sobolev (0, 2)'][1]:.2f}",
-            # f"{fpc3_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {fpc3_metrics_values['Sobolev (0, 2)'][1]:.2f}"
+            f"{fpnuc_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {fpnuc_metrics_values['Sobolev (0, 2)'][1]:.2f}",
+            f"{fpcc_metrics_values['Sobolev (0, 2)'][0]:.2f} +- {fpcc_metrics_values['Sobolev (0, 2)'][1]:.2f}"
         ]
         writer.writerow(row)
         row = [
@@ -223,9 +213,8 @@ def make_table(results_dir):
             "MERT",
             f"{linear_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {linear_metrics_values['Sobolev (1, 2)'][1]:.2f}",
             f"{random_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {random_metrics_values['Sobolev (1, 2)'][1]:.2f}",
-            # f"{fpc1_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpc1_metrics_values['Sobolev (1, 2)'][1]:.2f}",
-            # f"{fpc2_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpc2_metrics_values['Sobolev (1, 2)'][1]:.2f}",
-            # f"{fpc3_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpc3_metrics_values['Sobolev (1, 2)'][1]:.2f}"
+            f"{fpnuc_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpnuc_metrics_values['Sobolev (1, 2)'][1]:.2f}",
+            f"{fpcc_metrics_values['Sobolev (1, 2)'][0]:.2f} +- {fpcc_metrics_values['Sobolev (1, 2)'][1]:.2f}"
         ]
         writer.writerow(row)
 
