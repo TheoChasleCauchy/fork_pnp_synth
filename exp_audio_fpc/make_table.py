@@ -110,9 +110,9 @@ def make_table(results_dir):
     results_dir_random = f"{results_dir}/random"
     random_metrics_values = get_metrics_values(results_dir_random)
         
-    results_dir_fpnuc = "exp_invalidate_metrics_fpc/generated/metrics/fpnuc"
+    results_dir_fpnuc = f"{results_dir}/fpnuc"
     fpnuc_metrics_values = get_metrics_values(results_dir_fpnuc)
-    results_dir_fpcc = "exp_invalidate_metrics_fpc/generated/metrics/fpcc"
+    results_dir_fpcc = f"{results_dir}/fpcc"
     fpcc_metrics_values = get_metrics_values(results_dir_fpcc)
 
     # Write the table to a CSV file

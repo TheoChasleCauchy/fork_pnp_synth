@@ -119,11 +119,12 @@ synthesize_audios_trajectories(trajectories, logscale = True, audio_dir=audio_di
 
 ## Compute embeddings
 models = ["LaionCLAP_audio", "MERT_v1-330M"]
-embeddings_dir = "exp_audio_fpc/generated/embeddings/"
+embeddings_dir = "exp_audio_fpc/generated/embeddings/fpnuc"
 compute_trajectories_embeddings(models, trajectories, audio_dir=audio_dir, embeddings_dir=embeddings_dir)
 
 compute_metrics = True
 if compute_metrics:
+    results_dir = f"exp_audio_fpc/generated/results/fpnuc/"
     model_name = "MERT_v1-330M"
     embeddings_dir = f"exp_audio_fpc/generated/embeddings/{model_name}"
     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
@@ -133,17 +134,16 @@ if compute_metrics:
     compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
 
     model_name = "MFCC"
-    compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
+    compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
     model_name = "LaionCLAP_audio"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/{model_name}"
-    embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/fpnuc/{model_name}"
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
 
     model_name = "CDPAM"
-    compute_cdpam(results_dir, trajectories, audios_or_embeddings_folder=audios_dir)
-    compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
-    compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
+    compute_cdpam(results_dir, trajectories, audios_or_embeddings_folder=audio_dir)
+    compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
+    compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
 # --------------------------------------------------------
 #          Compute experiments FPNUC points              -
@@ -161,13 +161,14 @@ synthesize_audios_trajectories(trajectories, logscale = True, audio_dir=audio_di
 
 ## Compute embeddings
 models = ["LaionCLAP_audio", "MERT_v1-330M"]
-embeddings_dir = "exp_audio_fpc/generated/embeddings/"
+embeddings_dir = "exp_audio_fpc/generated/embeddings/fpcc/"
 compute_trajectories_embeddings(models, trajectories, audio_dir=audio_dir, embeddings_dir=embeddings_dir)
 
 compute_metrics = True
 if compute_metrics:
+    results_dir = f"exp_audio_fpc/generated/results/fpcc/"
     model_name = "MERT_v1-330M"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/fpcc/{model_name}"
     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
     compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
@@ -175,17 +176,16 @@ if compute_metrics:
     compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
 
     model_name = "MFCC"
-    compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
+    compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
     model_name = "LaionCLAP_audio"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/{model_name}"
-    embeddings_dir = f"exp_embeddings_linearity/generated/embeddings/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/fpcc/{model_name}"
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
 
     model_name = "CDPAM"
-    compute_cdpam(results_dir, trajectories, audios_or_embeddings_folder=audios_dir)
-    compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
-    compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
+    compute_cdpam(results_dir, trajectories, audios_or_embeddings_folder=audio_dir)
+    compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
+    compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
 # ----------------------------------------
 #                Make table              -

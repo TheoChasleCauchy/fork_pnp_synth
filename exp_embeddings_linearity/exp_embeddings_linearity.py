@@ -28,12 +28,12 @@ trajectories = load_trajectories_from_csv("exp_embeddings_linearity/generated/ra
 ## 3. Generate the audios
 audio_dir = "exp_embeddings_linearity/generated/random_audio"
 os.makedirs(audio_dir, exist_ok=True)
-synthesize_audios_trajectories(trajectories, logscale=True, audio_dir=audio_dir)
+# synthesize_audios_trajectories(trajectories, logscale=True, audio_dir=audio_dir)
 
 ## 4. Compute embeddings
 models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
 embeddings_dir = "exp_embeddings_linearity/generated/random_embeddings/"
-compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir)
+# compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir)
 
 ## 5. Compute sobolev distance
 results_dir = f"exp_embeddings_linearity/generated/results/random/"
@@ -54,13 +54,13 @@ trajectories = load_trajectories_from_csv(trajectories_filename)
 audio_dir = "exp_embeddings_linearity/generated/audio"
 os.makedirs(audio_dir, exist_ok=True)
 
-synthesize_audios_trajectories(trajectories, logscale=True, audio_dir=audio_dir)
+# synthesize_audios_trajectories(trajectories, logscale=True, audio_dir=audio_dir)
 
 ## 4. Compute embeddings
 models = ["LaionCLAP_audio", "LaionCLAP_music", "MSCLAP", "MERT_v1-95M", "MERT_v1-330M", "MERT_v0-public", "VGGish"]
 
 embeddings_dir = "exp_embeddings_linearity/generated/embeddings/"
-compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir)
+# compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir)
 
 ## 5. Compute sobolev distance
 results_dir = f"exp_embeddings_linearity/generated/results/experiment/"
