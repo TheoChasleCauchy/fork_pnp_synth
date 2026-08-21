@@ -90,7 +90,7 @@ def create_fpcc_intermediate_points(num_intermediate_samples, dirname):
                 random_direction = random_direction / np.linalg.norm(random_direction)  # Normalize
 
                 # Distance from A proportional to progress
-                distance_from_a = np.linalg.norm(a - b) * i / (num_intermediate_samples + 2)
+                distance_from_a = np.linalg.norm(a - b) * i / (num_intermediate_samples + 1)
                 intermediate_point = a + distance_from_a * random_direction
                 if (min_log_omega <= intermediate_point[0] <= max_log_omega and
                     min_tau <= intermediate_point[1] <= max_tau and
@@ -109,6 +109,100 @@ def create_fpcc_intermediate_points(num_intermediate_samples, dirname):
     # Save to CSV
     os.makedirs(dirname, exist_ok=True)
     filepath = os.path.join(dirname, "fpcc_trajectories.csv")
+    with open(filepath, 'w', newline='') as f:
+        writer = csv.writer(f)
+        header = [f"{param}_{i}" for i in range(num_intermediate_samples+2) for param in ["omega", "tau", "p", "D", "alpha"]]
+        writer.writerow(header)
+        writer.writerows(trajectories)
+
+    return filepath
+
+def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname):
+
+    def normalize_theta(theta):
+        # Normalize between 0 and 1 each parameter
+        assert len(theta == 5)
+        d_log_omega = max_log_omega - min_log_omega
+        normalized_log_omega = (theta[0] - min_log_omega) / d_log_omega
+
+        d_tau = max_tau - min_tau
+        normalized_tau = (theta[1] - min_tau) / d_tau
+
+        d_log_p = max_log_p - min_log_p
+        normalized_log_p = (theta[2] - min_log_p) / d_log_p
+
+        d_log_D = max_log_D - min_log_D
+        normalized_log_D = (theta[3] - min_log_D) / d_log_D
+
+        d_alpha = max_alpha - min_alpha
+        normalized_alpha = (theta[4] - min_alpha) / d_alpha
+
+        return np.array([normalized_log_omega, normalized_tau, normalized_log_p, normalized_log_D, normalized_alpha])
+
+    def denormalize_theta(theta):
+        # Denormalize from between 0 and 1 each parameter to their range
+        assert len(theta == 5)
+        d_log_omega = max_log_omega - min_log_omega
+        denormalized_log_omega = theta[0] * d_log_omega + min_log_omega
+
+        d_tau = max_tau - min_tau
+        denormalized_tau = theta[1] * d_tau + min_tau
+
+        d_log_p = max_log_p - min_log_p
+        denormalized_log_p = theta[2] * d_log_p + min_log_p
+
+        d_log_D = max_log_D - min_log_D
+        denormalized_log_D = theta[3] * d_log_D + min_log_D
+
+        d_alpha = max_alpha - min_alpha
+        denormalized_alpha = theta[4] * d_alpha + min_alpha
+
+        return np.array([denormalized_log_omega, denormalized_tau, denormalized_log_p, denormalized_log_D, denormalized_alpha])
+
+    # Load couples as torch tensor
+    couples = load_and_extract_couples(f"exp_embeddings_linearity/generated/thetas_couples.csv")
+
+    trajectories = []
+    for couple in tqdm(couples, desc=f"Computing normalized FPCC trajectories"):
+        a, b = np.array(couple[0]), np.array(couple[1])
+
+        # Initialize trajectory with point A
+        trajectory = []
+        trajectory.extend(a)
+
+        # Generate intermediate points between A and B
+        for i in range(1, num_intermediate_samples + 1):
+            valid_parameters = False
+            while not valid_parameters:
+                # Normalize a
+                normalized_a = normalize_theta(a)
+                normalized_b = normalize_theta(b)
+
+                # Random direction in the same shape as A
+                random_direction = np.random.rand(len(a))
+                random_direction = random_direction / np.linalg.norm(random_direction)  # Normalize
+
+                # Distance from A proportional to progress
+                distance_from_a = np.linalg.norm(normalized_a - normalized_b) * i / (num_intermediate_samples + 1)
+                intermediate_point = normalized_a + distance_from_a * random_direction
+                if (0.0 <= intermediate_point[0] <= 1.0 and
+                    0.0 <= intermediate_point[1] <= 1.0 and
+                    0.0 <= intermediate_point[2] <= 1.0 and
+                    0.0 <= intermediate_point[3] <= 1.0 and
+                    0.0 <= intermediate_point[4] <= 1.0):
+                    valid_parameters = True
+                denormalized_intermediate_point = denormalize_theta(intermediate_point)
+
+            trajectory.extend(intermediate_point)
+
+        trajectory.extend(b)
+        assert len(trajectory) == (num_intermediate_samples + 2)*5, f"Expected {(num_intermediate_samples + 2)*5} points, got {len(trajectory)}"
+
+        trajectories.append(trajectory)
+
+    # Save to CSV
+    os.makedirs(dirname, exist_ok=True)
+    filepath = os.path.join(dirname, "normalized_fpcc_trajectories.csv")
     with open(filepath, 'w', newline='') as f:
         writer = csv.writer(f)
         header = [f"{param}_{i}" for i in range(num_intermediate_samples+2) for param in ["omega", "tau", "p", "D", "alpha"]]

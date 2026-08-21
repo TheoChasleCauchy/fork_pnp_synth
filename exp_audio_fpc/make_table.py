@@ -218,4 +218,4 @@ def make_table(results_dir):
         ]
         writer.writerow(row)
 
-# make_table("exp_audio_fpc/generated/results")
+make_table("exp_audio_fpc/generated/results")

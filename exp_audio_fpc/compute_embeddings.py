@@ -7,6 +7,7 @@ from load_models_and_audios import _load_audio, _load_model
 
 def compute_trajectories_embeddings(models, trajectories, audio_dir, embeddings_dir):
     os.makedirs(embeddings_dir, exist_ok=True)
+    print(f"Computing embeddings from folder:\n{audio_dir} \nto {embeddings_dir}")
     for model_name in models:
         model = _load_model(model_name)
         embeddings_folder = f"{embeddings_dir}/{model_name}"

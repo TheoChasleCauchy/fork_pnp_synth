@@ -24,3 +24,4 @@ exp_audio_fpc/audio_test
 exp_audio_fpc/test.py
 exp_invalidate_metrics_fpc/generated
 exp_audio_fpc/generated
+exp_audio_fpc/archive_generated

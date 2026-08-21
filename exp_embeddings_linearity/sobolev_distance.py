@@ -34,7 +34,11 @@ def sobolev_distance(k: int, p: int, f, g, alpha_values):
     terms_to_sum = []
 
     # First term
-    k0 = torch.linalg.norm(torch.stack(f) - torch.stack(g), ord=p)
+    norms_to_sum = []
+    for i in range(len(f)):
+        norms_to_sum.append(torch.linalg.norm(f[i] - g[i], ord=p))
+
+    k0 = torch.stack(norms_to_sum).sum()
     terms_to_sum.append(k0)
 
     if k > 0:
@@ -52,8 +56,12 @@ def sobolev_distance(k: int, p: int, f, g, alpha_values):
                 # For the extremity (alpha = 1.0), copy the derivative of the previous point
                 f_derivatives.append(f_prime)
                 g_derivatives.append(g_prime)
-        
-        k1 = torch.linalg.norm(torch.stack(f_derivatives) - torch.stack(g_derivatives), ord=p)
+
+        norms_to_sum = []
+        for i in range(len(f_derivatives)):
+            norms_to_sum.append(torch.linalg.norm(f_derivatives[i] - g_derivatives[i], ord=p))
+
+        k1 = torch.stack(norms_to_sum).sum()
         terms_to_sum.append(k1)
     
     dist = torch.sum(torch.stack(terms_to_sum))

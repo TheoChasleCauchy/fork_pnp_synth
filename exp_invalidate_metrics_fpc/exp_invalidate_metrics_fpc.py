@@ -55,12 +55,12 @@ create_fpc1_intermediate_points(num_intermediate_samples, dir)
 # Optional: visualize the points
 # visualize = False
 # if visualize:
-#     plot_trajectory_points(trajectories[0], output_path="exp_invalidate_metrics_fpc/generated/visualizations/fpc1.png")
+#     plot_trajectory_points(trajectories[0], output_path="exp_invalidate_metrics_fpc/generated/visualizations/fpcc.png")
 
 # # 3. Calculer métriques sur ces trajectoires.
-metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc1"
+metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpcc"
 os.makedirs(metrics_folder, exist_ok=True)
-morph_type = "fpc1"
+morph_type = "fpcc"
 points_dir = f"exp_invalidate_metrics_fpc/generated/points"
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
@@ -128,12 +128,12 @@ create_fpc2_intermediate_points(num_intermediate_samples, dir)
 
 # visualize = False
 # if visualize:
-#     plot_trajectory_points(trajectories[0], output_path="exp_invalidate_metrics_fpc/generated/visualizations/fpc2.png")
+#     plot_trajectory_points(trajectories[0], output_path="exp_invalidate_metrics_fpc/generated/visualizations/fpnuc.png")
 
 # Calculer métriques sur ces trajectoires.
-metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc2"
+metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpnuc"
 os.makedirs(metrics_folder, exist_ok=True)
-morph_type = "fpc2"
+morph_type = "fpnuc"
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
 compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
@@ -152,12 +152,12 @@ create_fpc3_intermediate_points(num_intermediate_samples, dir)
 
 # visualize = False
 # if visualize:
-#     plot_trajectory_points(trajectories[0], output_path="exp_invalidate_metrics_fpc/generated/visualizations/fpc3.png")
+#     plot_trajectory_points(trajectories[0], output_path="exp_invalidate_metrics_fpc/generated/visualizations/fptc.png")
 
 # 5. Calculer métriques sur ces trajectoires.
-metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fpc3"
+metrics_folder = "exp_invalidate_metrics_fpc/generated/metrics/fptc"
 os.makedirs(metrics_folder, exist_ok=True)
-morph_type = "fpc3"
+morph_type = "fptc"
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/cdpam_intermediateness_total_cdpam_values.csv", morph_type, "cdpam")
 compute_intermediateness_total_cdpam(points_dir, f"{metrics_folder}/mert_intermediateness_total_cdpam_values.csv", morph_type, "mert")
 compute_smoothness_mean_cdpam(points_dir, f"{metrics_folder}/cdpam_smoothness_mean_cdpam_values.csv", morph_type, "cdpam")
