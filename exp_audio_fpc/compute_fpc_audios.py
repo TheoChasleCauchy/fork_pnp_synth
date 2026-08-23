@@ -165,18 +165,18 @@ def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname
     trajectories = []
     for couple in tqdm(couples, desc=f"Computing normalized FPCC trajectories"):
         a, b = np.array(couple[0]), np.array(couple[1])
+        # Normalize a
+        normalized_a = normalize_theta(a)
+        normalized_b = normalize_theta(b)
 
         # Initialize trajectory with point A
         trajectory = []
-        trajectory.extend(a)
+        trajectory.extend(normalized_a)
 
         # Generate intermediate points between A and B
         for i in range(1, num_intermediate_samples + 1):
             valid_parameters = False
             while not valid_parameters:
-                # Normalize a
-                normalized_a = normalize_theta(a)
-                normalized_b = normalize_theta(b)
 
                 # Random direction in the same shape as A
                 random_direction = np.random.rand(len(a))
@@ -195,7 +195,7 @@ def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname
 
             trajectory.extend(denormalized_intermediate_point)
 
-        trajectory.extend(b)
+        trajectory.extend(normalized_b)
         assert len(trajectory) == (num_intermediate_samples + 2)*5, f"Expected {(num_intermediate_samples + 2)*5} points, got {len(trajectory)}"
 
         trajectories.append(trajectory)
@@ -210,3 +210,68 @@ def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname
         writer.writerows(trajectories)
 
     return filepath
+
+def get_embeddings_fpcc_intermediate_points(embedding_model, num_intermediate_samples, random_points_embeddings_dir, trajectories_embeddings_dir):
+
+    import shutil
+
+    random_points_embeddings_dir = os.path.join(random_points_embeddings_dir, embedding_model)
+    trajectories_embeddings_dir = os.path.join(trajectories_embeddings_dir, embedding_model)
+    os.makedirs(trajectories_embeddings_dir, exist_ok=True)
+
+    # def normalize_embedings(theta):
+    #     pass
+
+    def load_random_points_from_csv(embeddings_dir):
+        random_points_embeddings = []
+
+        for root, _, files in os.walk(embeddings_dir):
+            for filename in tqdm(files, desc=f"Loading random points from {embeddings_dir}"):
+                if filename.endswith(".npy"):
+                    filepath = os.path.join(root, filename)
+                    random_points_embeddings.append({"filepath": filepath, "embedding": np.load(filepath)})
+
+        return random_points_embeddings
+
+    def find_closest_point_from_circle(source_point, distance_from_source, points):
+        closest_point_filepath = None
+        min_distance = float('inf')
+
+        for point in points:
+            dist = np.linalg.norm(np.array(point["embedding"]) - np.array(source_point))
+            temp_dist = abs(dist - distance_from_source)
+            if temp_dist < min_distance:
+                min_distance = temp_dist
+                closest_point_filepath = point["filepath"]
+
+        return closest_point_filepath
+
+    # Load couples as torch tensor
+    couples = load_and_extract_couples(f"exp_embeddings_linearity/generated/thetas_couples.csv")
+
+    random_points = load_random_points_from_csv(random_points_embeddings_dir)
+
+    for i_couple in tqdm(range(len(couples)), desc=f"Computing embeddings FPCC trajectories"):
+        a_filepath = os.path.join(random_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I0.npy")
+        shutil.copy(a_filepath, trajectories_embeddings_dir)
+        b_filepath = os.path.join(random_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{num_intermediate_samples+1}.npy")
+        shutil.copy(b_filepath, trajectories_embeddings_dir)
+
+        # Load embeddings for points A and B
+        a = np.load(a_filepath)
+        b = np.load(b_filepath)
+
+        # Normalize a and b
+        # normalized_a = normalize_theta(a)
+        # normalized_b = normalize_theta(b)
+
+        # Generate intermediate points between A and B
+        for i in range(1, num_intermediate_samples + 1):
+            # Distance from A proportional to progress
+            distance_from_a = np.linalg.norm(b - a) * i / (num_intermediate_samples + 1)
+
+            intermediate_point_filepath = find_closest_point_from_circle(a, distance_from_a, random_points)
+            shutil.copyfile(intermediate_point_filepath, os.path.join(trajectories_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{i}.npy"))
+
+
+    return trajectories_embeddings_dir
