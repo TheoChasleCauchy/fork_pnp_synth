@@ -112,7 +112,7 @@ def make_table(results_dir):
         
     results_dir_fpnuc = f"{results_dir}/fpnuc"
     fpnuc_metrics_values = get_metrics_values(results_dir_fpnuc)
-    results_dir_fpcc = f"{results_dir}/fpcc"
+    results_dir_fpcc = f"{results_dir}/normalized_fpcc" # f"{results_dir}/fpcc"
     fpcc_metrics_values = get_metrics_values(results_dir_fpcc)
 
     # Write the table to a CSV file
@@ -218,4 +218,6 @@ def make_table(results_dir):
         ]
         writer.writerow(row)
 
-make_table("exp_audio_fpc/generated/results")
+    print(f"Table generated successfully at {output_csv_path}.")
+
+# make_table("exp_audio_fpc/generated/results")

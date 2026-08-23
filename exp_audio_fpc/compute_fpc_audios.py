@@ -10,7 +10,7 @@ min_omega, max_omega = 1500, 8000
 min_log_omega, max_log_omega = np.log10(min_omega), np.log10(max_omega)
 min_tau, max_tau = 0.015, 1.0
 min_p, max_p = 0.15, 2
-min_logp, max_logp = np.log10(min_p), np.log10(max_p)
+min_log_p, max_log_p = np.log10(min_p), np.log10(max_p)
 min_D, max_D = 10**-5, 0.3
 min_log_D, max_log_D = np.log10(min_D), np.log10(max_D)
 min_alpha, max_alpha = 0.25, 1.0
@@ -94,7 +94,7 @@ def create_fpcc_intermediate_points(num_intermediate_samples, dirname):
                 intermediate_point = a + distance_from_a * random_direction
                 if (min_log_omega <= intermediate_point[0] <= max_log_omega and
                     min_tau <= intermediate_point[1] <= max_tau and
-                    min_logp <= intermediate_point[2] <= max_logp and
+                    min_log_p <= intermediate_point[2] <= max_log_p and
                     min_log_D <= intermediate_point[3] <= max_log_D and
                     min_alpha <= intermediate_point[4] <= max_alpha):
                     valid_parameters = True
@@ -121,7 +121,7 @@ def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname
 
     def normalize_theta(theta):
         # Normalize between 0 and 1 each parameter
-        assert len(theta == 5)
+        assert len(theta) == 5
         d_log_omega = max_log_omega - min_log_omega
         normalized_log_omega = (theta[0] - min_log_omega) / d_log_omega
 
@@ -141,7 +141,7 @@ def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname
 
     def denormalize_theta(theta):
         # Denormalize from between 0 and 1 each parameter to their range
-        assert len(theta == 5)
+        assert len(theta) == 5
         d_log_omega = max_log_omega - min_log_omega
         denormalized_log_omega = theta[0] * d_log_omega + min_log_omega
 
@@ -193,7 +193,7 @@ def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname
                     valid_parameters = True
                 denormalized_intermediate_point = denormalize_theta(intermediate_point)
 
-            trajectory.extend(intermediate_point)
+            trajectory.extend(denormalized_intermediate_point)
 
         trajectory.extend(b)
         assert len(trajectory) == (num_intermediate_samples + 2)*5, f"Expected {(num_intermediate_samples + 2)*5} points, got {len(trajectory)}"

@@ -167,24 +167,25 @@ if compute_metrics:
 # --------------------------------------------------------
 
 print("Computing normalized fpcc trajectories...")
+normalized_fpcc_process = True
+if normalized_fpcc_process:
+    from compute_fpc_audios import create_normalized_fpcc_intermediate_points
 
-from compute_fpc_audios import create_fpcc_intermediate_points
+    # Compute parameters trajectories
+    trajectories_filepath = create_normalized_fpcc_intermediate_points(num_intermediate_samples=num_intermediate_samples, dirname="exp_audio_fpc/generated/trajectories/")
+    print(f"Loading normalized fpcc trajectories from {trajectories_filepath}")
+    trajectories = load_trajectories_from_csv(trajectories_filepath)
 
-# Compute parameters trajectories
-trajectories_filepath = create_fpcc_intermediate_points(num_intermediate_samples=num_intermediate_samples, dirname="exp_audio_fpc/generated/trajectories/")
-print(f"Loading normalized fpcc trajectories from {trajectories_filepath}")
-trajectories = load_trajectories_from_csv(trajectories_filepath)
+    ## Generate audios
+    audio_dir = "exp_audio_fpc/generated/audios/normalized_fpcc"
+    synthesize_audios_trajectories(trajectories, logscale = True, audio_dir=audio_dir)
 
-## Generate audios
-audio_dir = "exp_audio_fpc/generated/audios/normalized_fpcc"
-synthesize_audios_trajectories(trajectories, logscale = True, audio_dir=audio_dir)
+    ## Compute embeddings
+    models = ["LaionCLAP_audio", "MERT_v1-330M"]
+    embeddings_dir = "exp_audio_fpc/generated/embeddings/normalized_fpcc/"
+    compute_trajectories_embeddings(models, trajectories, audio_dir=audio_dir, embeddings_dir=embeddings_dir)
 
-## Compute embeddings
-models = ["LaionCLAP_audio", "MERT_v1-330M"]
-embeddings_dir = "exp_audio_fpc/generated/embeddings/normalized_fpcc/"
-compute_trajectories_embeddings(models, trajectories, audio_dir=audio_dir, embeddings_dir=embeddings_dir)
-
-compute_metrics = False
+compute_metrics = True
 if compute_metrics:
     results_dir = f"exp_audio_fpc/generated/results/normalized_fpcc/"
     model_name = "MERT_v1-330M"
@@ -211,23 +212,25 @@ if compute_metrics:
 #          Compute experiments FPCC points              -
 # --------------------------------------------------------
 
-print("Computing fpcc trajectories...")
+fpcc_process = False
+if fpcc_process:
+    print("Computing fpcc trajectories...")
 
-from compute_fpc_audios import create_fpcc_intermediate_points
+    from compute_fpc_audios import create_fpcc_intermediate_points
 
-# Compute parameters trajectories
-trajectories_filepath = create_fpcc_intermediate_points(num_intermediate_samples=num_intermediate_samples, dirname="exp_audio_fpc/generated/trajectories/")
-print(f"Loading fpcc trajectories from {trajectories_filepath}")
-trajectories = load_trajectories_from_csv(trajectories_filepath)
+    # Compute parameters trajectories
+    trajectories_filepath = create_fpcc_intermediate_points(num_intermediate_samples=num_intermediate_samples, dirname="exp_audio_fpc/generated/trajectories/")
+    print(f"Loading fpcc trajectories from {trajectories_filepath}")
+    trajectories = load_trajectories_from_csv(trajectories_filepath)
 
-## Generate audios
-audio_dir = "exp_audio_fpc/generated/audios/fpcc"
-synthesize_audios_trajectories(trajectories, logscale = True, audio_dir=audio_dir)
+    ## Generate audios
+    audio_dir = "exp_audio_fpc/generated/audios/fpcc"
+    synthesize_audios_trajectories(trajectories, logscale = True, audio_dir=audio_dir)
 
-## Compute embeddings
-models = ["LaionCLAP_audio", "MERT_v1-330M"]
-embeddings_dir = "exp_audio_fpc/generated/embeddings/fpcc/"
-compute_trajectories_embeddings(models, trajectories, audio_dir=audio_dir, embeddings_dir=embeddings_dir)
+    ## Compute embeddings
+    models = ["LaionCLAP_audio", "MERT_v1-330M"]
+    embeddings_dir = "exp_audio_fpc/generated/embeddings/fpcc/"
+    compute_trajectories_embeddings(models, trajectories, audio_dir=audio_dir, embeddings_dir=embeddings_dir)
 
 compute_metrics = False
 if compute_metrics:
