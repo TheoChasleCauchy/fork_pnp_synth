@@ -4,6 +4,7 @@ import pandas as pd
 from typing import List, Tuple
 import numpy as np
 import os
+import random
 
 # Hypercube: [[1500, 8000], [0.015, 1.0], [0.15, 2], [10**-5, 0.3], [0.25, 1.0]]
 min_omega, max_omega = 1500, 8000
@@ -32,14 +33,14 @@ def load_and_extract_couples(csv_file_path: str) -> List[Tuple[List[float], List
     return couples
 
 
-def create_fpnuc_intermediate_points(num_intermediate_samples, dirname):
+def create_nuc_intermediate_points(num_intermediate_samples, dirname):
     alpha_values = [0.01 * i for i in range(1, num_intermediate_samples)] + [0.99]
 
     # Load couples as torch tensor
     couples = load_and_extract_couples(f"exp_embeddings_linearity/generated/thetas_couples.csv")
 
     trajectories = []
-    for couple in tqdm(couples, desc=f"Computing FPNUC trajectories"):
+    for couple in tqdm(couples, desc=f"Computing NUC trajectories"):
         a, b = np.array(couple[0]), np.array(couple[1])
 
         # Initialize trajectory with point A
@@ -58,7 +59,7 @@ def create_fpnuc_intermediate_points(num_intermediate_samples, dirname):
 
     # Save to CSV
     os.makedirs(dirname, exist_ok=True)
-    filepath = os.path.join(dirname, "fpnuc_trajectories.csv")
+    filepath = os.path.join(dirname, "nuc_trajectories.csv")
     with open(filepath, 'w', newline='') as f:
         writer = csv.writer(f)
         header = [f"{param}_{i}" for i in range(num_intermediate_samples+2) for param in ["omega", "tau", "p", "D", "alpha"]]
@@ -68,13 +69,13 @@ def create_fpnuc_intermediate_points(num_intermediate_samples, dirname):
     return filepath
 
 
-def create_fpcc_intermediate_points(num_intermediate_samples, dirname):
+def create_eqc_intermediate_points(num_intermediate_samples, dirname):
 
     # Load couples as torch tensor
     couples = load_and_extract_couples(f"exp_embeddings_linearity/generated/thetas_couples.csv")
 
     trajectories = []
-    for couple in tqdm(couples, desc=f"Computing FPCC trajectories"):
+    for couple in tqdm(couples, desc=f"Computing EQC trajectories"):
         a, b = np.array(couple[0]), np.array(couple[1])
 
         # Initialize trajectory with point A
@@ -108,7 +109,7 @@ def create_fpcc_intermediate_points(num_intermediate_samples, dirname):
 
     # Save to CSV
     os.makedirs(dirname, exist_ok=True)
-    filepath = os.path.join(dirname, "fpcc_trajectories.csv")
+    filepath = os.path.join(dirname, "eqc_trajectories.csv")
     with open(filepath, 'w', newline='') as f:
         writer = csv.writer(f)
         header = [f"{param}_{i}" for i in range(num_intermediate_samples+2) for param in ["omega", "tau", "p", "D", "alpha"]]
@@ -117,7 +118,7 @@ def create_fpcc_intermediate_points(num_intermediate_samples, dirname):
 
     return filepath
 
-def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname):
+def create_normalized_eqc_intermediate_points(num_intermediate_samples, dirname):
 
     def normalize_theta(theta):
         # Normalize between 0 and 1 each parameter
@@ -163,7 +164,7 @@ def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname
     couples = load_and_extract_couples(f"exp_embeddings_linearity/generated/thetas_couples.csv")
 
     trajectories = []
-    for couple in tqdm(couples, desc=f"Computing normalized FPCC trajectories"):
+    for couple in tqdm(couples, desc=f"Computing normalized EQC trajectories"):
         a, b = np.array(couple[0]), np.array(couple[1])
         # Normalize a
         normalized_a = normalize_theta(a)
@@ -202,7 +203,7 @@ def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname
 
     # Save to CSV
     os.makedirs(dirname, exist_ok=True)
-    filepath = os.path.join(dirname, "normalized_fpcc_trajectories.csv")
+    filepath = os.path.join(dirname, "normalized_eqc_trajectories.csv")
     with open(filepath, 'w', newline='') as f:
         writer = csv.writer(f)
         header = [f"{param}_{i}" for i in range(num_intermediate_samples+2) for param in ["omega", "tau", "p", "D", "alpha"]]
@@ -211,18 +212,35 @@ def create_normalized_fpcc_intermediate_points(num_intermediate_samples, dirname
 
     return filepath
 
-def get_embeddings_fpcc_intermediate_points(embedding_model, num_intermediate_samples, random_points_embeddings_dir, trajectories_embeddings_dir):
+def get_embeddings_eqc_intermediate_points(embedding_model, num_intermediate_samples, random_points_embeddings_dir, trajectories_embeddings_dir, results_dir):
+    """
+    Generate intermediate embedding points along circular trajectories between endpoint couples (A, B).
+    For each couple, finds points at specific distances from A that approximate a circular arc to B,
+    saves these to the trajectories directory, and records the angular deviation from the direct AB line.
+
+    Args:
+        embedding_model: Name identifier for the embedding model
+        num_intermediate_samples: Number of intermediate points between each A-B couple
+        random_points_embeddings_dir: Base directory containing random embedding points
+        trajectories_embeddings_dir: Base directory to save generated trajectory embeddings
+        results_dir: Base directory to save results
+
+    Returns:
+        Path to the directory containing all generated trajectory embeddings and angle data
+    """
 
     import shutil
+    import csv
 
+    # Set up model-specific subdirectories
     random_points_embeddings_dir = os.path.join(random_points_embeddings_dir, embedding_model)
     trajectories_embeddings_dir = os.path.join(trajectories_embeddings_dir, embedding_model)
+    results_dir = os.path.join(results_dir, embedding_model)
     os.makedirs(trajectories_embeddings_dir, exist_ok=True)
-
-    # def normalize_embedings(theta):
-    #     pass
+    os.makedirs(results_dir, exist_ok=True)
 
     def load_random_points_from_csv(embeddings_dir):
+        """Recursively load all embedding .npy files from directory tree."""
         random_points_embeddings = []
 
         for root, _, files in os.walk(embeddings_dir):
@@ -234,6 +252,10 @@ def get_embeddings_fpcc_intermediate_points(embedding_model, num_intermediate_sa
         return random_points_embeddings
 
     def find_closest_point_from_circle(source_point, distance_from_source, points):
+        """
+        Find the point whose distance from source_point is closest to the specified distance.
+        This implements a circular search rather than linear interpolation.
+        """
         closest_point_filepath = None
         min_distance = float('inf')
 
@@ -246,45 +268,104 @@ def get_embeddings_fpcc_intermediate_points(embedding_model, num_intermediate_sa
 
         return closest_point_filepath
 
-    # Load couples as torch tensor
+    def calculate_angle(a, b, intermediate):
+        """
+        Calculate the angle in degrees between the AB line and the line from A to the intermediate point.
+        This measures how much the closest found point deviates from the direct path from A to B.
+        """
+        vec_ai = intermediate - a
+        vec_ab = b - a
+
+        norm_ai = np.linalg.norm(vec_ai)
+        norm_ab = np.linalg.norm(vec_ab)
+
+        if norm_ai == 0 or norm_ab == 0:
+            return 0.0
+
+        cos_angle = np.dot(vec_ai, vec_ab) / (norm_ai * norm_ab)
+        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        return np.degrees(np.arccos(cos_angle))
+
+    # Load couples (A, B pairs) from CSV
     couples = load_and_extract_couples(f"exp_embeddings_linearity/generated/thetas_couples.csv")
 
+    # Load all available random points for nearest-neighbor search
     random_points = load_random_points_from_csv(random_points_embeddings_dir)
 
-    for i_couple in tqdm(range(len(couples)), desc=f"Computing embeddings FPCC trajectories"):
+    # Storage for angle measurements
+    angles_data = []
+
+    for i_couple in tqdm(range(len(couples)), desc=f"Computing embeddings EQC trajectories"):
+        # Copy endpoint A (I0) and B (I{num_intermediate_samples+1}) to trajectories directory
         a_filepath = os.path.join(random_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I0.npy")
         shutil.copy(a_filepath, trajectories_embeddings_dir)
         b_filepath = os.path.join(random_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{num_intermediate_samples+1}.npy")
         shutil.copy(b_filepath, trajectories_embeddings_dir)
 
-        # Load embeddings for points A and B
+        # Load endpoint embeddings
         a = np.load(a_filepath)
         b = np.load(b_filepath)
 
-        # Normalize a and b
-        # normalized_a = normalize_theta(a)
-        # normalized_b = normalize_theta(b)
-
-        # Generate intermediate points between A and B
+        # Generate intermediate points between A and B using circular search
         for i in range(1, num_intermediate_samples + 1):
-            # Distance from A proportional to progress
+            # Target distance from A for this intermediate point
             distance_from_a = np.linalg.norm(b - a) * i / (num_intermediate_samples + 1)
 
+            # Find point whose distance from A is closest to the target distance
             intermediate_point_filepath = find_closest_point_from_circle(a, distance_from_a, random_points)
-            shutil.copyfile(intermediate_point_filepath, os.path.join(trajectories_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{i}.npy"))
+            shutil.copyfile(
+                intermediate_point_filepath,
+                os.path.join(trajectories_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{i}.npy")
+            )
 
+            # Load the actual intermediate embedding to calculate deviation angle
+            intermediate_embedding = np.load(intermediate_point_filepath)
+            angle_deg = calculate_angle(a, b, intermediate_embedding)
+            angles_data.append({
+                'row_index': i_couple,
+                'intermediate_index': i,
+                'angle_degrees': angle_deg
+            })
+
+    # Save all angle measurements to CSV in the trajectories directory
+    angles_filepath = os.path.join(results_dir, 'intermediate_points_angles.csv')
+    with open(angles_filepath, 'w', newline='') as csvfile:
+        fieldnames = ['row_index', 'intermediate_index', 'angle_degrees']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(angles_data)
 
     return trajectories_embeddings_dir
 
-def get_embeddings_fpnuc_intermediate_points(embedding_model, num_intermediate_samples, random_points_embeddings_dir, trajectories_embeddings_dir):
+def get_embeddings_nuc_intermediate_points(embedding_model, num_intermediate_samples, random_points_embeddings_dir, trajectories_embeddings_dir, results_dir):
+    """
+    Generate intermediate embedding points along linear trajectories between endpoint couples (A, B).
+    For each couple, interpolates points along the line from A to B, finds the closest actual random embedding,
+    saves these to the trajectories directory, and records the angular deviation from the ideal line.
+
+    Args:
+        embedding_model: Name identifier for the embedding model
+        num_intermediate_samples: Number of intermediate points between each A-B couple
+        random_points_embeddings_dir: Base directory containing random embedding points
+        trajectories_embeddings_dir: Base directory to save generated trajectory embeddings
+        results_dir: Base directory to save results
+
+    Returns:
+        Path to the directory containing all generated trajectory embeddings and angle data
+    """
 
     import shutil
+    import csv
 
+    # Set up model-specific subdirectories
     random_points_embeddings_dir = os.path.join(random_points_embeddings_dir, embedding_model)
     trajectories_embeddings_dir = os.path.join(trajectories_embeddings_dir, embedding_model)
+    results_dir = os.path.join(results_dir, embedding_model)
     os.makedirs(trajectories_embeddings_dir, exist_ok=True)
+    os.makedirs(results_dir, exist_ok=True)
 
     def load_random_points_from_csv(embeddings_dir):
+        """Recursively load all embedding .npy files from directory tree."""
         random_points_embeddings = []
 
         for root, _, files in os.walk(embeddings_dir):
@@ -296,6 +377,7 @@ def get_embeddings_fpnuc_intermediate_points(embedding_model, num_intermediate_s
         return random_points_embeddings
 
     def find_closest_point(reference_point, points):
+        """Find the embedding point with minimum Euclidean distance to the reference point."""
         closest_point_filepath = None
         min_distance = float('inf')
 
@@ -307,31 +389,100 @@ def get_embeddings_fpnuc_intermediate_points(embedding_model, num_intermediate_s
 
         return closest_point_filepath
 
+    def calculate_angle(a, b, intermediate):
+        """
+        Calculate the angle in degrees between the AB line and the line from A to the intermediate point.
+        This measures how much the closest found point deviates from the ideal linear interpolation.
+        """
+        vec_ai = intermediate - a
+        vec_ab = b - a
+
+        norm_ai = np.linalg.norm(vec_ai)
+        norm_ab = np.linalg.norm(vec_ab)
+
+        if norm_ai == 0 or norm_ab == 0:
+            return 0.0
+
+        cos_angle = np.dot(vec_ai, vec_ab) / (norm_ai * norm_ab)
+        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        return np.degrees(np.arccos(cos_angle))
+
+    # Alpha values for linear interpolation: 0.01, 0.02, ..., 0.99
     alpha_values = [0.01 * i for i in range(1, num_intermediate_samples)] + [0.99]
 
-    # Load couples as torch tensor
+    # Load the couples (A, B pairs) from CSV
     couples = load_and_extract_couples(f"exp_embeddings_linearity/generated/thetas_couples.csv")
 
+    # Load all available random points for nearest-neighbor search
     random_points = load_random_points_from_csv(random_points_embeddings_dir)
 
-    for i_couple in tqdm(range(len(couples)), desc=f"Computing embeddings FPNUC trajectories"):
+    # Storage for angle measurements
+    angles_data = []
+
+    for i_couple in tqdm(range(len(couples)), desc=f"Computing embeddings NUC trajectories"):
+        # Copy endpoint A (I0) and B (I{num_intermediate_samples+1}) to trajectories directory
         a_filepath = os.path.join(random_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I0.npy")
         shutil.copy(a_filepath, trajectories_embeddings_dir)
         b_filepath = os.path.join(random_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{num_intermediate_samples+1}.npy")
         shutil.copy(b_filepath, trajectories_embeddings_dir)
 
-        # Load embeddings for points A and B
+        # Load endpoint embeddings
         a = np.load(a_filepath)
         b = np.load(b_filepath)
 
-        # Generate intermediate points between A and B
         for i in range(1, num_intermediate_samples + 1):
-            # Distance from A proportional to progress
+            # Ideal interpolated point at fraction alpha_values[i-1] along AB
             vector_from_a = (b - a) * alpha_values[i - 1]
             ideal_point = a + vector_from_a
 
+            # Find the actual random point closest to this ideal point
             intermediate_point_filepath = find_closest_point(ideal_point, random_points)
-            shutil.copyfile(intermediate_point_filepath, os.path.join(trajectories_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{i}.npy"))
+            shutil.copyfile(
+                intermediate_point_filepath,
+                os.path.join(trajectories_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{i}.npy")
+            )
 
+            # Load the actual intermediate embedding to calculate deviation angle
+            intermediate_embedding = np.load(intermediate_point_filepath)
+            angle_deg = calculate_angle(a, b, intermediate_embedding)
+            angles_data.append({
+                'row_index': i_couple,
+                'intermediate_index': i,
+                'angle_degrees': angle_deg
+            })
+
+    # Save all angle measurements to CSV in the trajectories directory
+    angles_filepath = os.path.join(results_dir, 'intermediate_points_angles.csv')
+    with open(angles_filepath, 'w', newline='') as csvfile:
+        fieldnames = ['row_index', 'intermediate_index', 'angle_degrees']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(angles_data)
 
     return trajectories_embeddings_dir
+
+def generate_random_points(num_points, points_filename, seed):
+    random.seed(seed)
+    os.makedirs(os.path.dirname(points_filename), exist_ok=True)
+
+    points = []
+    for _ in range(num_points):
+        theta = []
+        # Generate random parameters for each point
+        theta.append(random.uniform(min_log_omega, max_log_omega))
+        theta.append(random.uniform(min_tau, max_tau))
+        theta.append(random.uniform(min_log_p, max_log_p))
+        theta.append(random.uniform(min_log_D, max_log_D))
+        theta.append(random.uniform(min_alpha, max_alpha))
+
+        points.append(theta)
+
+    # Save to CSV
+    with open(points_filename, 'w', newline='') as f:
+        writer = csv.writer(f)
+        header = [f"{param}" for param in ["log_omega", "tau", "log_p", "log_D", "alpha"]]
+        writer.writerow(header)
+        for theta in points:
+            writer.writerow(theta)
+
+    return points_filename

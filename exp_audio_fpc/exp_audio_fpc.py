@@ -116,34 +116,34 @@ if compute_metrics:
     compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audios_dir)
 
 # --------------------------------------------------------
-#          Compute experiments FPNUC points              -
+#          Compute experiments NUC points              -
 # --------------------------------------------------------
 
-print("Computing fpnuc trajectories...")
+print("Computing nuc trajectories...")
 
-from compute_fpc_audios import create_fpnuc_intermediate_points
+from compute_fpc_audios import create_nuc_intermediate_points
 
-fpnuc_process = False
-if fpnuc_process:
+nuc_process = False
+if nuc_process:
     # Compute parameters trajectories
-    trajectories_filepath = create_fpnuc_intermediate_points(num_intermediate_samples=num_intermediate_samples, dirname="exp_audio_fpc/generated/trajectories/")
-    print(f"Loading fpnuc trajectories from {trajectories_filepath}")
+    trajectories_filepath = create_nuc_intermediate_points(num_intermediate_samples=num_intermediate_samples, dirname="exp_audio_fpc/generated/trajectories/")
+    print(f"Loading nuc trajectories from {trajectories_filepath}")
     trajectories = load_trajectories_from_csv(trajectories_filepath)
 
     ## Generate audios
-    audio_dir = "exp_audio_fpc/generated/audios/fpnuc"
+    audio_dir = "exp_audio_fpc/generated/audios/nuc"
     synthesize_audios_trajectories(trajectories, logscale = True, audio_dir=audio_dir)
 
     ## Compute embeddings
     models = ["LaionCLAP_audio", "MERT_v1-330M"]
-    embeddings_dir = "exp_audio_fpc/generated/embeddings/fpnuc"
+    embeddings_dir = "exp_audio_fpc/generated/embeddings/nuc"
     compute_trajectories_embeddings(models, trajectories, audio_dir=audio_dir, embeddings_dir=embeddings_dir)
 
 compute_metrics = False
 if compute_metrics:
-    results_dir = f"exp_audio_fpc/generated/results/fpnuc/"
+    results_dir = f"exp_audio_fpc/generated/results/nuc/"
     model_name = "MERT_v1-330M"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/fpnuc/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/nuc/{model_name}"
     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
     compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
@@ -154,7 +154,7 @@ if compute_metrics:
     compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
     model_name = "LaionCLAP_audio"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/fpnuc/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/nuc/{model_name}"
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
 
     model_name = "CDPAM"
@@ -163,33 +163,33 @@ if compute_metrics:
     compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
 # --------------------------------------------------------
-#          Compute experiments normalized FPCC points              -
+#          Compute experiments normalized EQC points              -
 # --------------------------------------------------------
 
-print("Computing normalized fpcc trajectories...")
-normalized_fpcc_process = False
-if normalized_fpcc_process:
-    from compute_fpc_audios import create_normalized_fpcc_intermediate_points
+print("Computing normalized eqc trajectories...")
+normalized_eqc_process = False
+if normalized_eqc_process:
+    from compute_fpc_audios import create_normalized_eqc_intermediate_points
 
     # Compute parameters trajectories
-    trajectories_filepath = create_normalized_fpcc_intermediate_points(num_intermediate_samples=num_intermediate_samples, dirname="exp_audio_fpc/generated/trajectories/")
-    print(f"Loading normalized fpcc trajectories from {trajectories_filepath}")
-    trajectories = load_trajectories_from_csv("exp_audio_fpc/generated/trajectories/normalized_fpcc_trajectories.csv")#trajectories_filepath)
+    trajectories_filepath = create_normalized_eqc_intermediate_points(num_intermediate_samples=num_intermediate_samples, dirname="exp_audio_fpc/generated/trajectories/")
+    print(f"Loading normalized eqc trajectories from {trajectories_filepath}")
+    trajectories = load_trajectories_from_csv("exp_audio_fpc/generated/trajectories/normalized_eqc_trajectories.csv")#trajectories_filepath)
     
     ## Generate audios
-    audio_dir = "exp_audio_fpc/generated/audios/normalized_fpcc"
+    audio_dir = "exp_audio_fpc/generated/audios/normalized_eqc"
     synthesize_audios_trajectories(trajectories, logscale = True, audio_dir=audio_dir)
 
     ## Compute embeddings
     models = ["LaionCLAP_audio", "MERT_v1-330M"]
-    embeddings_dir = "exp_audio_fpc/generated/embeddings/normalized_fpcc/"
+    embeddings_dir = "exp_audio_fpc/generated/embeddings/normalized_eqc/"
     compute_trajectories_embeddings(models, trajectories, audio_dir=audio_dir, embeddings_dir=embeddings_dir)
 
 compute_metrics = False
 if compute_metrics:
-    results_dir = f"exp_audio_fpc/generated/results/normalized_fpcc/"
+    results_dir = f"exp_audio_fpc/generated/results/normalized_eqc/"
     model_name = "MERT_v1-330M"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/normalized_fpcc/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/normalized_eqc/{model_name}"
     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
     compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
@@ -200,7 +200,7 @@ if compute_metrics:
     compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
     model_name = "LaionCLAP_audio"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/normalized_fpcc/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/normalized_eqc/{model_name}"
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
 
     model_name = "CDPAM"
@@ -209,34 +209,34 @@ if compute_metrics:
     compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
 # --------------------------------------------------------
-#          Compute experiments FPCC points              -
+#          Compute experiments EQC points              -
 # --------------------------------------------------------
 
-fpcc_process = False
-if fpcc_process:
-    print("Computing fpcc trajectories...")
+eqc_process = False
+if eqc_process:
+    print("Computing eqc trajectories...")
 
-    from compute_fpc_audios import create_fpcc_intermediate_points
+    from compute_fpc_audios import create_eqc_intermediate_points
 
     # Compute parameters trajectories
-    trajectories_filepath = create_fpcc_intermediate_points(num_intermediate_samples=num_intermediate_samples, dirname="exp_audio_fpc/generated/trajectories/")
-    print(f"Loading fpcc trajectories from {trajectories_filepath}")
+    trajectories_filepath = create_eqc_intermediate_points(num_intermediate_samples=num_intermediate_samples, dirname="exp_audio_fpc/generated/trajectories/")
+    print(f"Loading eqc trajectories from {trajectories_filepath}")
     trajectories = load_trajectories_from_csv(trajectories_filepath)
 
     ## Generate audios
-    audio_dir = "exp_audio_fpc/generated/audios/fpcc"
+    audio_dir = "exp_audio_fpc/generated/audios/eqc"
     synthesize_audios_trajectories(trajectories, logscale = True, audio_dir=audio_dir)
 
     ## Compute embeddings
     models = ["LaionCLAP_audio", "MERT_v1-330M"]
-    embeddings_dir = "exp_audio_fpc/generated/embeddings/fpcc/"
+    embeddings_dir = "exp_audio_fpc/generated/embeddings/eqc/"
     compute_trajectories_embeddings(models, trajectories, audio_dir=audio_dir, embeddings_dir=embeddings_dir)
 
 compute_metrics = False
 if compute_metrics:
-    results_dir = f"exp_audio_fpc/generated/results/fpcc/"
+    results_dir = f"exp_audio_fpc/generated/results/eqc/"
     model_name = "MERT_v1-330M"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/fpcc/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/eqc/{model_name}"
     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
     compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
@@ -247,7 +247,7 @@ if compute_metrics:
     compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
     model_name = "LaionCLAP_audio"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/fpcc/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/eqc/{model_name}"
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
 
     model_name = "CDPAM"
@@ -255,26 +255,44 @@ if compute_metrics:
     compute_intermediateness_total_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
     compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
-# --------------------------------------------------------
-#          Get embeddings FPCC points              -
-# --------------------------------------------------------
+# -----------------------------------------------------------------------------
+#          Compute random set of parameters to synthesize and encode          -
+# -----------------------------------------------------------------------------
+from compute_fpc_audios import generate_random_points
+from synthesize_audios import synthesize_audios_points
+from compute_embeddings import compute_points_embeddings
 
-embeddings_fpcc_process = False
-if embeddings_fpcc_process:
-    print("Computing embeddings FPCC trajectories...")
+compute_random_audios= True
+if compute_random_audios:
+    points_filename = "exp_audio_fpc/generated/random_parameters_points.csv"
+    generate_random_points(num_points=15000, points_filename=points_filename, seed=seed)
 
-    from compute_fpc_audios import get_embeddings_fpcc_intermediate_points
+    audio_dir = "exp_audio_fpc/generated/audios/random_audios"
+    synthesize_audios_points(points_filename, logscale = True, audio_dir=audio_dir)
+
+    random_embeddings_dir = "exp_audio_fpc/generated/embeddings/random_embeddings"
+    compute_points_embeddings(["LaionCLAP_audio", "MERT_v1-330M"], audio_dir, random_embeddings_dir)
+
+# ------------------------------------------------------------------
+#          Get embeddings EQC pointsn by random sampling          -
+# ------------------------------------------------------------------
+
+embeddings_eqc_process = True
+if embeddings_eqc_process:
+    print("Computing embeddings EQC trajectories...")
+
+    from compute_fpc_audios import get_embeddings_eqc_intermediate_points
 
     for model_name in ["LaionCLAP_audio", "MERT_v1-330M"]:
         # Compute parameters trajectories
-        trajectories_filepath = get_embeddings_fpcc_intermediate_points(embedding_model=model_name, num_intermediate_samples=num_intermediate_samples, random_points_embeddings_dir=f"exp_embeddings_linearity/generated/random_embeddings/", trajectories_embeddings_dir=f"exp_audio_fpc/generated/embeddings/emb_fpcc")
-        print(f"Loading fpcc trajectories from {trajectories_filepath}")
+        trajectories_filepath = get_embeddings_eqc_intermediate_points(embedding_model=model_name, num_intermediate_samples=num_intermediate_samples, random_points_embeddings_dir=random_embeddings_dir, trajectories_embeddings_dir=f"exp_audio_fpc/generated/embeddings/emb_eqc", results_dir=f"exp_audio_fpc/generated/results/emb_eqc")
+        print(f"Loading eqc trajectories from {trajectories_filepath}")
 
-compute_metrics = False
+compute_metrics = True
 if compute_metrics:
-    results_dir = f"exp_audio_fpc/generated/results/emb_fpcc/"
+    results_dir = f"exp_audio_fpc/generated/results/emb_eqc/"
     model_name = "MERT_v1-330M"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/emb_fpcc/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/emb_eqc/{model_name}"
     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
     compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
@@ -285,7 +303,7 @@ if compute_metrics:
     # compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
     model_name = "LaionCLAP_audio"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/emb_fpcc/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/emb_eqc/{model_name}"
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
 
     # model_name = "CDPAM"
@@ -294,27 +312,26 @@ if compute_metrics:
     # compute_smoothness_mean_cdpam(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
 
+# ------------------------------------------------------------------
+#          Get embeddings NUC pointsn by random sampling          -
+# ------------------------------------------------------------------
 
-# --------------------------------------------------------
-#          Get embeddings FPNUC points              -
-# --------------------------------------------------------
+embeddings_nuc_process = True
+if embeddings_nuc_process:
+    print("Computing embeddings NUC trajectories...")
 
-embeddings_fpnuc_process = True
-if embeddings_fpnuc_process:
-    print("Computing embeddings FPNUC trajectories...")
-
-    from compute_fpc_audios import get_embeddings_fpnuc_intermediate_points
+    from compute_fpc_audios import get_embeddings_nuc_intermediate_points
 
     for model_name in ["LaionCLAP_audio", "MERT_v1-330M"]:
         # Compute parameters trajectories
-        trajectories_filepath = get_embeddings_fpnuc_intermediate_points(embedding_model=model_name, num_intermediate_samples=num_intermediate_samples, random_points_embeddings_dir=f"exp_embeddings_linearity/generated/random_embeddings/", trajectories_embeddings_dir=f"exp_audio_fpc/generated/embeddings/emb_fpnuc")
-        print(f"Loading fpnuc trajectories from {trajectories_filepath}")
+        trajectories_filepath = get_embeddings_nuc_intermediate_points(embedding_model=model_name, num_intermediate_samples=num_intermediate_samples, random_points_embeddings_dir=f"exp_embeddings_linearity/generated/random_embeddings/", trajectories_embeddings_dir=f"exp_audio_fpc/generated/embeddings/emb_nuc", results_dir=f"exp_audio_fpc/generated/results/emb_nuc")
+        print(f"Loading nuc trajectories from {trajectories_filepath}")
 
 compute_metrics = True
 if compute_metrics:
-    results_dir = f"exp_audio_fpc/generated/results/emb_fpnuc/"
+    results_dir = f"exp_audio_fpc/generated/results/emb_nuc/"
     model_name = "MERT_v1-330M"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/emb_fpnuc/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/emb_nuc/{model_name}"
     compute_sobolev_distances(embeddings_dir, results_dir, model_name, trajectories, num_intermediate_samples)
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
     compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=embeddings_dir)
@@ -325,7 +342,7 @@ if compute_metrics:
     # compute_soundmorpher_correspondence_mfccs(results_dir, model_name, trajectories, audios_or_embeddings_folder=audio_dir)
 
     model_name = "LaionCLAP_audio"
-    embeddings_dir = f"exp_audio_fpc/generated/embeddings/emb_fpnuc/{model_name}"
+    embeddings_dir = f"exp_audio_fpc/generated/embeddings/emb_nuc/{model_name}"
     compute_smoothness_clap_corr(results_dir, model_name, trajectories, embeddings_folder=embeddings_dir)
 
     # model_name = "CDPAM"
