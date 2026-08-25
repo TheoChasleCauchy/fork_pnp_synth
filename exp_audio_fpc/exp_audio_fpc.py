@@ -262,7 +262,7 @@ from compute_fpc_audios import generate_random_points
 from synthesize_audios import synthesize_audios_points
 from compute_embeddings import compute_points_embeddings
 
-compute_random_audios= True
+compute_random_audios= False
 if compute_random_audios:
     points_filename = "exp_audio_fpc/generated/random_parameters_points.csv"
     generate_random_points(num_points=15000, points_filename=points_filename, seed=seed)
@@ -283,9 +283,11 @@ if embeddings_eqc_process:
 
     from compute_fpc_audios import get_embeddings_eqc_intermediate_points
 
+    random_embeddings_dir = "exp_audio_fpc/generated/embeddings/random_embeddings"
+
     for model_name in ["LaionCLAP_audio", "MERT_v1-330M"]:
         # Compute parameters trajectories
-        trajectories_filepath = get_embeddings_eqc_intermediate_points(embedding_model=model_name, num_intermediate_samples=num_intermediate_samples, random_points_embeddings_dir=random_embeddings_dir, trajectories_embeddings_dir=f"exp_audio_fpc/generated/embeddings/emb_eqc", results_dir=f"exp_audio_fpc/generated/results/emb_eqc")
+        trajectories_filepath = get_embeddings_eqc_intermediate_points(embedding_model=model_name, num_intermediate_samples=num_intermediate_samples, couples_points_embeddings_dir=f"exp_embeddings_linearity/generated/embeddings/{model_name}", random_points_embeddings_dir=random_embeddings_dir, trajectories_embeddings_dir=f"exp_audio_fpc/generated/embeddings/emb_eqc", results_dir=f"exp_audio_fpc/generated/results/emb_eqc")
         print(f"Loading eqc trajectories from {trajectories_filepath}")
 
 compute_metrics = True
@@ -322,9 +324,11 @@ if embeddings_nuc_process:
 
     from compute_fpc_audios import get_embeddings_nuc_intermediate_points
 
+    random_embeddings_dir = "exp_audio_fpc/generated/embeddings/random_embeddings"
+
     for model_name in ["LaionCLAP_audio", "MERT_v1-330M"]:
         # Compute parameters trajectories
-        trajectories_filepath = get_embeddings_nuc_intermediate_points(embedding_model=model_name, num_intermediate_samples=num_intermediate_samples, random_points_embeddings_dir=f"exp_embeddings_linearity/generated/random_embeddings/", trajectories_embeddings_dir=f"exp_audio_fpc/generated/embeddings/emb_nuc", results_dir=f"exp_audio_fpc/generated/results/emb_nuc")
+        trajectories_filepath = get_embeddings_nuc_intermediate_points(embedding_model=model_name, num_intermediate_samples=num_intermediate_samples, couples_points_embeddings_dir=f"exp_embeddings_linearity/generated/embeddings/{model_name}", random_points_embeddings_dir=random_embeddings_dir, trajectories_embeddings_dir=f"exp_audio_fpc/generated/embeddings/emb_nuc", results_dir=f"exp_audio_fpc/generated/results/emb_nuc")
         print(f"Loading nuc trajectories from {trajectories_filepath}")
 
 compute_metrics = True

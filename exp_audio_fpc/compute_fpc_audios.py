@@ -212,7 +212,11 @@ def create_normalized_eqc_intermediate_points(num_intermediate_samples, dirname)
 
     return filepath
 
-def get_embeddings_eqc_intermediate_points(embedding_model, num_intermediate_samples, random_points_embeddings_dir, trajectories_embeddings_dir, results_dir):
+def get_embeddings_eqc_intermediate_points(embedding_model, num_intermediate_samples,
+                                           couples_points_embeddings_dir,
+                                           random_points_embeddings_dir,
+                                           trajectories_embeddings_dir,
+                                           results_dir):
     """
     Generate intermediate embedding points along circular trajectories between endpoint couples (A, B).
     For each couple, finds points at specific distances from A that approximate a circular arc to B,
@@ -221,6 +225,7 @@ def get_embeddings_eqc_intermediate_points(embedding_model, num_intermediate_sam
     Args:
         embedding_model: Name identifier for the embedding model
         num_intermediate_samples: Number of intermediate points between each A-B couple
+        couples_points_embeddings_dir: Base directory containing embedding points for each couple
         random_points_embeddings_dir: Base directory containing random embedding points
         trajectories_embeddings_dir: Base directory to save generated trajectory embeddings
         results_dir: Base directory to save results
@@ -297,9 +302,9 @@ def get_embeddings_eqc_intermediate_points(embedding_model, num_intermediate_sam
 
     for i_couple in tqdm(range(len(couples)), desc=f"Computing embeddings EQC trajectories"):
         # Copy endpoint A (I0) and B (I{num_intermediate_samples+1}) to trajectories directory
-        a_filepath = os.path.join(random_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I0.npy")
+        a_filepath = os.path.join(couples_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I0.npy")
         shutil.copy(a_filepath, trajectories_embeddings_dir)
-        b_filepath = os.path.join(random_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{num_intermediate_samples+1}.npy")
+        b_filepath = os.path.join(couples_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{num_intermediate_samples+1}.npy")
         shutil.copy(b_filepath, trajectories_embeddings_dir)
 
         # Load endpoint embeddings
@@ -337,7 +342,11 @@ def get_embeddings_eqc_intermediate_points(embedding_model, num_intermediate_sam
 
     return trajectories_embeddings_dir
 
-def get_embeddings_nuc_intermediate_points(embedding_model, num_intermediate_samples, random_points_embeddings_dir, trajectories_embeddings_dir, results_dir):
+def get_embeddings_nuc_intermediate_points(embedding_model, num_intermediate_samples,
+                                           couples_points_embeddings_dir,
+                                           random_points_embeddings_dir, 
+                                           trajectories_embeddings_dir,
+                                           results_dir):
     """
     Generate intermediate embedding points along linear trajectories between endpoint couples (A, B).
     For each couple, interpolates points along the line from A to B, finds the closest actual random embedding,
@@ -346,6 +355,7 @@ def get_embeddings_nuc_intermediate_points(embedding_model, num_intermediate_sam
     Args:
         embedding_model: Name identifier for the embedding model
         num_intermediate_samples: Number of intermediate points between each A-B couple
+        couples_points_embeddings_dir: Base directory containing the endpoint couple embeddings
         random_points_embeddings_dir: Base directory containing random embedding points
         trajectories_embeddings_dir: Base directory to save generated trajectory embeddings
         results_dir: Base directory to save results
@@ -421,9 +431,9 @@ def get_embeddings_nuc_intermediate_points(embedding_model, num_intermediate_sam
 
     for i_couple in tqdm(range(len(couples)), desc=f"Computing embeddings NUC trajectories"):
         # Copy endpoint A (I0) and B (I{num_intermediate_samples+1}) to trajectories directory
-        a_filepath = os.path.join(random_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I0.npy")
+        a_filepath = os.path.join(couples_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I0.npy")
         shutil.copy(a_filepath, trajectories_embeddings_dir)
-        b_filepath = os.path.join(random_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{num_intermediate_samples+1}.npy")
+        b_filepath = os.path.join(couples_points_embeddings_dir, f"embedding_{embedding_model}_row_{i_couple}_AB_I{num_intermediate_samples+1}.npy")
         shutil.copy(b_filepath, trajectories_embeddings_dir)
 
         # Load endpoint embeddings
