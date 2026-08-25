@@ -76,7 +76,7 @@ def compute_sobolev_distances(embeddings_folder, results_dir, model_name, trajec
     
     for k, p in [(1, 2), (0, 2)]:
         sobolev_dists = []
-        for i_traj, trajectory in enumerate(tqdm(trajectories, desc="Processing couples", total=len(trajectories))):
+        for i_traj, trajectory in enumerate(tqdm(trajectories, desc="Computing sobolev distances", total=len(trajectories))):
             morph_embeddings = []
             for i_theta in range(len(trajectory)):
                 embedding = torch.tensor(np.load(os.path.join(embeddings_folder, f"embedding_{model_name}_row_{i_traj}_AB_I{i_theta}.npy")))
